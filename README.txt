@@ -1,27 +1,25 @@
-BERT v2.2 — BERT EXPERIENCE TEST
+BERT v2.3 — COURT NAMES + CLEAN START
 
-Home
-- Full-display Bert
-- "Bert wants to play!"
-- Tournament Builder
-- Round Robin
-- Ladder League — Coming Soon
-- MiLP — Coming Soon
-- Bert's Event Locker — separate saved-event/history area
+Fixes
+- Removed leftover "Tap Bert anytime to return Home" copy.
+- New app build starts Round Robin with a clean active canvas.
+- Older active test names/players are ignored automatically after a version update.
+- Saved Event Locker history is NOT erased by the clean-start rule.
+- Opening an event intentionally from Bert's Event Locker still restores that event.
 
-Round Robin
-- Saved automatically into Event Locker with created/updated timestamps
-- Status is derived automatically:
-  Completed = green
-  In Progress = yellow
-  Pending = red
-  Archived = gray
-- Open, Archive/Unarchive, Delete from Event Locker
-- Shared medal ties remain enabled
-- Bert logo returns Home
-- "Fairness Rules" instructional card removed
-- Extra "Tap Bert..." instructional prompts removed
-- More Bert personality in active match language
+New Court Naming
+- Step 4 still selects number of courts.
+- Bert immediately creates one editable label for each court.
+- Examples:
+  Court 1 / Court 2
+  Court A / Court B / Court C
+  Upper Tennis Court 11 / Upper Tennis Court 12
+- Generated schedule displays the custom court labels.
+- Fair court-rotation logic still uses internal court numbers behind the scenes.
 
-NOTE
-The Event Locker is local to the current browser/device. Cloud sync and QR joins still require a backend.
+Persistence
+- Active draft is build-aware using APP_BUILD 2.3.
+- Event Locker remains stored independently so version updates do not destroy saved event history.
+
+HOME LAYOUT UPDATE
+- Bert's Event Locker moved below the event-planning choices so Tournament Builder and Round Robin remain the primary focus.

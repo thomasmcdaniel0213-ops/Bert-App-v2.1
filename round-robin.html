@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0aa0df">
-<title>Bert Round Robin Wizard Test</title>
+<title>Bert Round Robin v2.3</title>
 <style>
 :root{
   --bg:#eef8fd;--card:#ffffff;--ink:#102a3a;--muted:#5a7180;--line:#cfe1ea;
@@ -49,7 +49,7 @@ header .sub{color:#dff5ff}
 <header><div class="top">
   <a href="index.html" title="Back to Bert Home" style="display:flex;align-items:center;gap:10px;color:inherit;text-decoration:none">
     <img src="bert-logo.png" alt="Bert Home" style="width:46px;height:46px;border-radius:11px">
-    <div><h1>Bert — Round Robin</h1><div class="sub">Round Robin</div></div>
+    <div><h1>Bert — Round Robin</h1><div class="sub">Bert's Round Robin</div></div>
   </a>
   <span id="status" class="pill">Ready</span>
 </div></header>
@@ -95,6 +95,11 @@ header .sub{color:#dff5ff}
       <label class="grow"><span># of Courts</span><input id="courts" type="number" min="1" max="30" value="2"></label>
       <label class="grow"><span># of Rounds</span><input id="rounds" type="number" min="1" max="30" value="6"></label>
       <label class="grow"><span>Game To</span><input id="gameTo" type="number" min="1" max="99" value="11"></label>
+    </div>
+    <div style="margin-top:14px">
+      <h3>Name Your Courts</h3>
+      <div class="meta">Use whatever the venue calls them — Court 1, Court A, Upper Tennis Court 11, etc.</div>
+      <div id="courtNameInputs" class="grid g2" style="margin-top:8px"></div>
     </div>
     <div class="actions"><button data-prev="3">Back</button><button id="createEvent" class="primary">Create Round Robin</button></div>
   </div>
@@ -160,7 +165,9 @@ header .sub{color:#dff5ff}
 
 <script>
 const RR_LIBRARY_KEY='bert_v22_rr_library';
-let state={id:'rr_'+Date.now().toString(36),step:1,eventName:'',date:'',format:'',type:'',courts:2,rounds:6,gameTo:11,entries:[],schedule:[],scores:{},nextId:1,createdAt:Date.now(),updatedAt:Date.now(),archived:false};
+const RR_ACTIVE_KEY='bert_rr_active_state';
+const APP_BUILD='2.3';
+let state={id:'rr_'+Date.now().toString(36),build:APP_BUILD,step:1,eventName:'',date:'',format:'',type:'',courts:2,courtNames:['Court 1','Court 2'],rounds:6,gameTo:11,entries:[],schedule:[],scores:{},nextId:1,createdAt:Date.now(),updatedAt:Date.now(),archived:false};
 
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -168,7 +175,7 @@ const pairKey=(a,b)=>[a,b].sort().join('|');
 function loadLibrary(){try{return JSON.parse(localStorage.getItem(RR_LIBRARY_KEY)||'[]')}catch(e){return[]}}
 function save(){
   state.updatedAt=Date.now();
-  localStorage.setItem('bert_rr_wizard_test_v1',JSON.stringify(state));
+  localStorage.setItem(RR_ACTIVE_KEY,JSON.stringify(state));
   let lib=loadLibrary(),i=lib.findIndex(x=>x.id===state.id);
   if(i>=0)lib[i]=state;else lib.push(state);
   localStorage.setItem(RR_LIBRARY_KEY,JSON.stringify(lib));
@@ -201,6 +208,8 @@ function showWizardFromEvent(preserve=true){
     $('eventName').value=state.eventName||'';
     $('eventDate').value=state.date||'';
     $('courts').value=state.courts||2;
+    normalizeCourtNames(state.courts||2);
+    renderCourtNameInputs();
     $('rounds').value=state.rounds||6;
     $('gameTo').value=state.gameTo||11;
     document.querySelectorAll('[data-format]').forEach(b=>b.classList.toggle('active',b.dataset.format===state.format));
@@ -211,11 +220,37 @@ function showWizardFromEvent(preserve=true){
   showStep(1);
 }
 function freshState(){
-  return {id:'rr_'+Date.now().toString(36),step:1,eventName:'',date:'',format:'',type:'',courts:2,rounds:6,gameTo:11,entries:[],schedule:[],scores:{},nextId:1,createdAt:Date.now(),updatedAt:Date.now(),archived:false};
+  return {id:'rr_'+Date.now().toString(36),build:APP_BUILD,step:1,eventName:'',date:'',format:'',type:'',courts:2,courtNames:['Court 1','Court 2'],rounds:6,gameTo:11,entries:[],schedule:[],scores:{},nextId:1,createdAt:Date.now(),updatedAt:Date.now(),archived:false};
+}
+
+
+function normalizeCourtNames(count){
+  state.courtNames=Array.from({length:count},(_,i)=>{
+    const existing=(state.courtNames||[])[i];
+    return existing && String(existing).trim() ? existing : `Court ${i+1}`;
+  });
+}
+function renderCourtNameInputs(){
+  const count=Math.max(1,Math.min(30,Number($('courts').value)||1));
+  normalizeCourtNames(count);
+  $('courtNameInputs').innerHTML=state.courtNames.map((name,i)=>`
+    <label><span>Court ${i+1} Label</span><input data-courtname="${i}" value="${esc(name)}" placeholder="Court ${i+1}"></label>
+  `).join('');
+  document.querySelectorAll('[data-courtname]').forEach(inp=>inp.oninput=e=>{
+    state.courtNames[Number(e.target.dataset.courtname)]=e.target.value;
+  });
+}
+$('courts').addEventListener('input',renderCourtNameInputs);
+function getCourtName(courtNumber){
+  return (state.courtNames||[])[Number(courtNumber)-1] || `Court ${courtNumber}`;
 }
 
 $('createEvent').onclick=()=>{
   state.courts=Math.max(1,Math.min(30,Number($('courts').value)||1));
+  normalizeCourtNames(state.courts);
+  document.querySelectorAll('[data-courtname]').forEach(inp=>{
+    state.courtNames[Number(inp.dataset.courtname)]=inp.value.trim()||`Court ${Number(inp.dataset.courtname)+1}`;
+  });
   state.rounds=Math.max(1,Math.min(30,Number($('rounds').value)||1));
   state.gameTo=Math.max(1,Math.min(99,Number($('gameTo').value)||11));
   $('wizard').classList.add('hidden');$('eventApp').classList.remove('hidden');renderAll();save()
@@ -358,9 +393,9 @@ $('newEvent').onclick=()=>{
   let hasData=state.eventName||state.entries.length||state.schedule.length;
   if(hasData && !confirm('Start a new Round Robin event? The current event will be cleared from this device unless you save it elsewhere first.')) return;
   state=freshState();
-  localStorage.removeItem('bert_rr_wizard_test_v1');
+  localStorage.removeItem(RR_ACTIVE_KEY);
   $('eventName').value='';$('eventDate').value='';
-  $('courts').value=2;$('rounds').value=6;$('gameTo').value=11;
+  $('courts').value=2;state.courtNames=['Court 1','Court 2'];renderCourtNameInputs();$('rounds').value=6;$('gameTo').value=11;
   document.querySelectorAll('[data-format]').forEach(b=>b.classList.remove('active'));
   renderTypeChoices();
   $('eventApp').classList.add('hidden');
@@ -372,9 +407,9 @@ $('clearEvent').onclick=()=>{
   if(!confirm('Clear ALL Round Robin contents? This removes event setup, players, schedule, and scores from this device.')) return;
   if(!confirm('This cannot be undone from the local app. Clear the event now?')) return;
   state=freshState();
-  localStorage.removeItem('bert_rr_wizard_test_v1');
+  localStorage.removeItem(RR_ACTIVE_KEY);
   $('eventName').value='';$('eventDate').value='';
-  $('courts').value=2;$('rounds').value=6;$('gameTo').value=11;
+  $('courts').value=2;state.courtNames=['Court 1','Court 2'];renderCourtNameInputs();$('rounds').value=6;$('gameTo').value=11;
   document.querySelectorAll('[data-format]').forEach(b=>b.classList.remove('active'));
   renderTypeChoices();
   $('eventApp').classList.add('hidden');
@@ -397,7 +432,7 @@ function renderSchedule(){
   let rounds=[...new Set(state.schedule.map(m=>m.round))].sort((a,b)=>a-b);
   $('scheduleArea').innerHTML=rounds.length?rounds.map(r=>`<div class="round"><h3>Round ${r}</h3><div class="matches">${state.schedule.filter(m=>m.round===r).map(m=>{
     let s=state.scores[m.id]||{a:'',b:''},done=s.a!==''&&s.b!==''&&Number(s.a)!==Number(s.b);
-    return `<div class="match ${done?'done':''}"><div class="head"><span>Court ${m.court}</span><span>${m.serving==='A'?'A Serves':'B Serves'}</span></div>
+    return `<div class="match ${done?'done':''}"><div class="head"><span>${esc(getCourtName(m.court))}</span><span>${m.serving==='A'?'A Serves':'B Serves'}</span></div>
     <div class="team">${esc(sideLabel(m.a))}${m.serving==='A'?'<span class="serve">SERVE</span>':''}</div>
     <div class="team">${esc(sideLabel(m.b))}${m.serving==='B'?'<span class="serve">SERVE</span>':''}</div>
     <div class="score"><input data-score="${m.id}:a" type="number" min="0" max="99" value="${esc(s.a)}"><b>–</b><input data-score="${m.id}:b" type="number" min="0" max="99" value="${esc(s.b)}"></div></div>`
@@ -443,24 +478,46 @@ function renderAll(){
 try{
   let openId=localStorage.getItem('bert_v22_rr_open_id');
   let saved=null;
+  let openedFromLocker=false;
+
   if(openId){
     let lib=loadLibrary();
     saved=lib.find(x=>x.id===openId)||null;
     localStorage.removeItem('bert_v22_rr_open_id');
+    openedFromLocker=!!saved;
   }
-  if(!saved) saved=JSON.parse(localStorage.getItem('bert_rr_wizard_test_v1')||'null');
+
+  if(!saved){
+    let active=JSON.parse(localStorage.getItem(RR_ACTIVE_KEY)||'null');
+    if(active && active.build===APP_BUILD) saved=active;
+    else if(active && active.build!==APP_BUILD) localStorage.removeItem(RR_ACTIVE_KEY);
+  }
+
   if(saved&&saved.eventName){
-    state=saved;
+    state={...freshState(),...saved,build:APP_BUILD};
+    normalizeCourtNames(state.courts||2);
     $('eventName').value=state.eventName||'';
     $('eventDate').value=state.date||'';
     $('courts').value=state.courts||2;
+    renderCourtNameInputs();
     $('rounds').value=state.rounds||6;
     $('gameTo').value=state.gameTo||11;
     document.querySelectorAll('[data-format]').forEach(b=>b.classList.toggle('active',b.dataset.format===state.format));
     renderTypeChoices();
-    showStep(1);
+
+    if(openedFromLocker){
+      $('wizard').classList.add('hidden');
+      $('eventApp').classList.remove('hidden');
+      renderAll();
+    }else{
+      showStep(1);
+    }
+  }else{
+    renderCourtNameInputs();
   }
-}catch(e){}
+}catch(e){
+  renderCourtNameInputs();
+}
 </script>
 </body>
 </html>
