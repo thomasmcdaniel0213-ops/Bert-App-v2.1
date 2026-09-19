@@ -1,0 +1,368 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0aa0df">
+<title>Bert Round Robin Wizard Test</title>
+<style>
+:root{
+  --bg:#eef8fd;--card:#ffffff;--ink:#102a3a;--muted:#5a7180;--line:#cfe1ea;
+  --blue:#10a8e3;--blue-dark:#087eb0;--blue2:#ddf4fd;--navy:#0b3d66;
+  --lime:#dfff38;--lime-soft:#f2ffbd;--green:#dcf3e2;--yellow:#fff1ad;--red:#fde6e6;
+  --copper:#b85f24;--cream:#fffaf0;
+}
+*{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;background:
+linear-gradient(180deg,#dff5ff 0%,#f7fbfd 42%,#eef8fd 100%);color:var(--ink)}
+button,input,select{font:inherit}button{cursor:pointer;min-height:44px;border:1px solid var(--line);border-radius:10px;background:#fff;padding:9px 12px}
+button.primary{background:linear-gradient(180deg,var(--blue),var(--blue-dark));border-color:var(--blue-dark);color:#fff;font-weight:700}
+button.secondary{background:var(--lime-soft);border-color:#c8dd48;color:#315000;font-weight:700}
+button.danger{background:#fff1f1;border-color:#e4b5b5}button:disabled{opacity:.45;cursor:not-allowed}
+input,select{width:100%;font-size:16px;padding:10px;border:1px solid var(--line);border-radius:9px;background:#fff}
+label span{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}
+header{background:linear-gradient(90deg,var(--navy),var(--blue));border-bottom:1px solid rgba(255,255,255,.25);padding:12px 14px;color:#fff}.top{max-width:1100px;margin:auto;display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}
+h1{font-size:19px;margin:0}h2{font-size:21px;margin:0 0 7px;color:var(--navy)}h3{font-size:15px;margin:0 0 7px;color:var(--navy)}.sub,.meta{font-size:12px;color:var(--muted)}
+header .sub{color:#dff5ff}
+.wrap{max-width:1100px;margin:auto;padding:14px}.hidden{display:none!important}.card{background:linear-gradient(180deg,#ffffff 0%,#fbfeff 100%);border:1px solid var(--line);border-radius:14px;padding:14px;box-shadow:0 6px 18px rgba(11,61,102,.07)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:end}.grow{flex:1;min-width:180px}.grid{display:grid;gap:10px}.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.progress{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:10px 0 16px}.stepdot{background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px;text-align:center;font-size:12px}.stepdot.active{background:linear-gradient(180deg,var(--blue2),#f4fbff);border-color:#7ecae7;font-weight:700;color:var(--navy)}
+.choicegrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.choice{min-height:100px;border:2px solid var(--line);border-radius:14px;background:#fff;padding:16px;text-align:left}.choice.active{border-color:var(--blue);background:linear-gradient(180deg,var(--blue2),#f5fcff);color:var(--navy)}
+.actions{display:flex;gap:8px;justify-content:space-between;flex-wrap:wrap;margin-top:14px}
+.alert{padding:10px 12px;border-radius:10px;background:var(--yellow);font-size:13px}.ok{background:var(--green)}.dangerbox{background:var(--red)}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}.tabs button.active{background:var(--blue2);border-color:#8ed1e9;font-weight:700}
+.partrow{display:grid;grid-template-columns:45px 1.4fr 180px 72px;gap:7px;align-items:center;padding:7px 0;border-bottom:1px solid var(--line)}
+.teamrow{display:grid;grid-template-columns:45px 1.1fr 1fr 180px 1fr 180px 72px;gap:7px;align-items:center;padding:7px 0;border-bottom:1px solid var(--line)}
+.genderbox{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.genderbox label{display:flex;align-items:center;gap:5px;font-size:13px;color:var(--ink)}
+.genderbox input[type="checkbox"]{width:18px;height:18px;margin:0;padding:0}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}.stat{background:#fff;border:1px solid var(--line);border-radius:10px;padding:9px}.big{font-size:22px;font-weight:800}
+.round{margin-bottom:18px}.matches{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.match{background:#fff;border:1px solid var(--line);border-radius:11px;padding:10px}.match.done{background:var(--green)}
+.match .head{display:flex;justify-content:space-between;gap:8px;font-size:11px;color:var(--muted)}.team{font-weight:700;margin-top:5px}.serve{display:inline-block;background:var(--blue2);border-radius:999px;padding:2px 6px;font-size:10px;margin-left:5px}
+.score{display:flex;gap:6px;align-items:center;margin-top:8px}.score input{width:64px}
+.tablewrap{overflow:auto}table{width:100%;border-collapse:collapse}th,td{padding:7px;border-bottom:1px solid var(--line);font-size:13px;text-align:left}th{font-size:11px;text-transform:uppercase;color:var(--muted);background:#fafcfd}
+.pill{display:inline-block;background:var(--lime);color:#294800;border-radius:999px;padding:4px 8px;font-size:12px;font-weight:700}
+@media(max-width:900px){.matches{grid-template-columns:repeat(2,1fr)}.partrow,.teamrow{grid-template-columns:1fr}.choicegrid{grid-template-columns:1fr}.g2{grid-template-columns:1fr}}
+@media(max-width:620px){.wrap{padding:10px}.progress{grid-template-columns:repeat(2,1fr)}.matches{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<header><div class="top"><div><h1>Bert — Round Robin Test</h1><div class="sub">Guided setup + player entry + fair scheduling</div></div><span id="status" class="pill">Ready</span></div></header>
+<main class="wrap">
+
+<section id="wizard">
+  <div class="progress">
+    <div class="stepdot active" data-dot="1">1 · Event Name</div>
+    <div class="stepdot" data-dot="2">2 · Format</div>
+    <div class="stepdot" data-dot="3">3 · Format Type</div>
+    <div class="stepdot" data-dot="4">4 · Courts + Rounds</div>
+  </div>
+
+  <div id="step1" class="card step">
+    <h2>Step 1: Enter Event Name</h2>
+    <label><span>Event Name</span><input id="eventName" placeholder="Saturday Morning Pickup"></label>
+    <div class="actions"><span></span><button class="primary" data-next="2">Next</button></div>
+  </div>
+
+  <div id="step2" class="card step hidden">
+    <h2>Step 2: Pick The Format</h2>
+    <div class="choicegrid">
+      <button class="choice" data-format="doubles"><b>Doubles</b><div class="meta">2 players per side</div></button>
+      <button class="choice" data-format="singles"><b>Singles</b><div class="meta">1 player per side</div></button>
+      <button class="choice" data-format="mixed"><b>Mixed Doubles</b><div class="meta">Male + Female pairing where possible</div></button>
+    </div>
+    <div class="actions"><button data-prev="1">Back</button><button class="primary" data-next="3">Next</button></div>
+  </div>
+
+  <div id="step3" class="card step hidden">
+    <h2>Step 3: Pick Format Type</h2>
+    <div id="formatTypeChoices" class="choicegrid"></div>
+    <div id="singlesNote" class="alert hidden" style="margin-top:10px">Singles uses individual players, so partner rotation does not apply.</div>
+    <div class="actions"><button data-prev="2">Back</button><button class="primary" data-next="4">Next</button></div>
+  </div>
+
+  <div id="step4" class="card step hidden">
+    <h2>Step 4: Select Courts and Rounds</h2>
+    <div class="row">
+      <label class="grow"><span># of Courts</span><input id="courts" type="number" min="1" max="30" value="2"></label>
+      <label class="grow"><span># of Rounds</span><input id="rounds" type="number" min="1" max="30" value="6"></label>
+      <label class="grow"><span>Game To</span><input id="gameTo" type="number" min="1" max="99" value="11"></label>
+    </div>
+    <div class="actions"><button data-prev="3">Back</button><button id="createEvent" class="primary">Create Round Robin</button></div>
+  </div>
+</section>
+
+<section id="eventApp" class="hidden">
+  <div class="stats">
+    <div class="stat"><div class="meta">Event</div><div id="sumName" class="big"></div></div>
+    <div class="stat"><div class="meta">Format</div><div id="sumFormat" class="big"></div></div>
+    <div class="stat"><div class="meta">Courts</div><div id="sumCourts" class="big"></div></div>
+    <div class="stat"><div class="meta">Rounds</div><div id="sumRounds" class="big"></div></div>
+  </div>
+
+  <div class="tabs" style="margin-top:12px">
+    <button data-tab="join" class="active">Players / Join</button>
+    <button data-tab="schedule">Schedule + Scores</button>
+    <button data-tab="standings">Standings</button>
+  </div>
+
+  <section id="join" class="tabpage">
+    <div class="grid g2">
+      <div class="card">
+        <h3>Add Players</h3>
+        <div class="row">
+          <button id="manualAdd" class="primary">Manual Entry</button>
+          <button id="creatorJoin">Creator Joins as Player</button>
+        </div>
+        <div class="row" style="margin-top:8px">
+          <button id="invitePlayers">Invite Players via QR</button>
+          <button id="inviteManager">Invite Co-Manager</button>
+        </div>
+        <div id="inviteMsg" class="alert hidden" style="margin-top:10px"></div>
+      </div>
+      <div class="card">
+        <h3>Fairness Rules</h3>
+        <div class="meta">
+          Bert will balance: partner repeats, opponent repeats, sit-outs, side assignments,
+          court usage, and serve/receive assignments. Mixed Doubles will prioritize Male/Female teams when possible.
+        </div>
+      </div>
+    </div>
+    <div id="entryArea" class="card" style="margin-top:10px"></div>
+    <div class="actions"><span></span><button id="generateSchedule" class="primary">Generate Schedule</button></div>
+  </section>
+
+  <section id="schedule" class="tabpage hidden">
+    <div class="alert ok"><b>No coin toss needed:</b> Bert assigns Serve/Receive automatically and balances it across the session.</div>
+    <div class="alert" style="margin-top:8px"><b>Quick score entry:</b> enter the losing score from 1–9 and Bert will automatically fill the winner as 11. For 10–10 or games above 11, enter both scores manually.</div>
+    <div id="scheduleArea" style="margin-top:10px"></div>
+  </section>
+
+  <section id="standings" class="tabpage hidden">
+    <div class="card">
+      <h2>Standings</h2>
+      <div class="meta">Wins → point differential → points scored. Top 3 get a little podium love 🥇🥈🥉</div>
+      <div id="standingsArea" class="tablewrap" style="margin-top:8px"></div>
+    </div>
+  </section>
+</section>
+
+</main>
+
+<script>
+let state={step:1,eventName:'',format:'',type:'',courts:2,rounds:6,gameTo:11,entries:[],schedule:[],scores:{},nextId:1};
+
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const pairKey=(a,b)=>[a,b].sort().join('|');
+function save(){localStorage.setItem('bert_rr_wizard_test_v1',JSON.stringify(state));$('status').textContent='Saved';setTimeout(()=>$('status').textContent='Ready',500)}
+function showStep(n){state.step=n;document.querySelectorAll('.step').forEach(x=>x.classList.add('hidden'));$('step'+n).classList.remove('hidden');document.querySelectorAll('[data-dot]').forEach(x=>x.classList.toggle('active',Number(x.dataset.dot)===n));renderTypeChoices();save()}
+document.querySelectorAll('[data-next]').forEach(b=>b.onclick=()=>{
+  if(state.step===1){state.eventName=$('eventName').value.trim();if(!state.eventName)return alert('Enter an event name first.')}
+  if(state.step===2&&!state.format)return alert('Choose Doubles, Singles, or Mixed Doubles.');
+  if(state.step===3&&!state.type)return alert('Choose a format type.');
+  showStep(Number(b.dataset.next))
+});
+document.querySelectorAll('[data-prev]').forEach(b=>b.onclick=()=>showStep(Number(b.dataset.prev)));
+document.querySelectorAll('[data-format]').forEach(b=>b.onclick=()=>{state.format=b.dataset.format;state.type=state.format==='singles'?'singles':'';document.querySelectorAll('[data-format]').forEach(x=>x.classList.toggle('active',x===b));renderTypeChoices();save()});
+
+function renderTypeChoices(){
+  if(state.format==='singles'){
+    $('formatTypeChoices').innerHTML=`<button class="choice active"><b>Individual Round Robin</b><div class="meta">Players stay individual</div></button>`;
+    $('singlesNote').classList.remove('hidden');state.type='singles';return;
+  }
+  $('singlesNote').classList.add('hidden');
+  $('formatTypeChoices').innerHTML=`
+    <button class="choice ${state.type==='rotating'?'active':''}" data-type="rotating"><b>Rotating Partners</b><div class="meta">Partners change round to round</div></button>
+    <button class="choice ${state.type==='fixed'?'active':''}" data-type="fixed"><b>Fixed Partners</b><div class="meta">Teams remain together</div></button>`;
+  document.querySelectorAll('[data-type]').forEach(b=>b.onclick=()=>{state.type=b.dataset.type;renderTypeChoices();save()})
+}
+$('createEvent').onclick=()=>{
+  state.courts=Math.max(1,Math.min(30,Number($('courts').value)||1));
+  state.rounds=Math.max(1,Math.min(30,Number($('rounds').value)||1));
+  state.gameTo=Math.max(1,Math.min(99,Number($('gameTo').value)||11));
+  $('wizard').classList.add('hidden');$('eventApp').classList.remove('hidden');renderAll();save()
+};
+
+document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{document.querySelectorAll('[data-tab]').forEach(x=>x.classList.toggle('active',x===b));document.querySelectorAll('.tabpage').forEach(x=>x.classList.add('hidden'));$(b.dataset.tab).classList.remove('hidden')});
+
+function isFixed(){return state.type==='fixed'}
+function needsGender(){return state.format==='mixed'||state.type==='rotating'}
+function entryCount(){return state.entries.length}
+
+function genderChecks(id,prefix,current){
+  return `<div class="genderbox">
+    <label><input type="checkbox" data-gender="${id}:${prefix}:Male" ${current==='Male'?'checked':''}> Male</label>
+    <label><input type="checkbox" data-gender="${id}:${prefix}:Female" ${current==='Female'?'checked':''}> Female</label>
+  </div>`;
+}
+function bindGenderChecks(){
+  document.querySelectorAll('[data-gender]').forEach(cb=>cb.onchange=e=>{
+    let [id,prefix,value]=e.target.dataset.gender.split(':');
+    let row=e.target.closest('[data-id]');
+    if(e.target.checked){
+      row.querySelectorAll(`[data-gender^="${id}:${prefix}:"]`).forEach(other=>{if(other!==e.target)other.checked=false});
+    }
+    let entry=state.entries.find(v=>v.id===id);
+    if(!entry)return;
+    if(prefix==='player')entry.gender=e.target.checked?value:'';
+    if(prefix==='g1')entry.g1=e.target.checked?value:'';
+    if(prefix==='g2')entry.g2=e.target.checked?value:'';
+    state.schedule=[];state.scores={};save();renderAll();
+  });
+}
+function renderEntries(){
+  let html='';
+  if(isFixed()){
+    html=`<div class="teamrow meta"><b>#</b><b>Team Name</b><b>Player 1</b><b>Gender</b><b>Player 2</b><b>Gender</b><b></b></div>`;
+    state.entries.forEach((t,i)=>html+=`<div class="teamrow" data-id="${t.id}">
+      <b>${i+1}</b><input data-f="team" value="${esc(t.team||'')}"><input data-f="p1" value="${esc(t.p1||'')}">
+      ${genderChecks(t.id,'g1',t.g1||'')}
+      <input data-f="p2" value="${esc(t.p2||'')}">
+      ${genderChecks(t.id,'g2',t.g2||'')}
+      <button data-del="${t.id}" class="danger">Delete</button></div>`);
+  }else{
+    html=`<div class="partrow meta"><b>#</b><b>Player Name</b><b>Gender</b><b></b></div>`;
+    state.entries.forEach((p,i)=>html+=`<div class="partrow" data-id="${p.id}">
+      <b>${i+1}</b><input data-f="name" value="${esc(p.name||'')}">
+      ${genderChecks(p.id,'player',p.gender||'')}
+      <button data-del="${p.id}" class="danger">Delete</button></div>`);
+  }
+  $('entryArea').innerHTML=html||'<div class="meta">No players entered yet.</div>';
+  $('entryArea').querySelectorAll('[data-f]').forEach(el=>el.onchange=e=>{let x=state.entries.find(v=>v.id===e.target.closest('[data-id]').dataset.id);x[e.target.dataset.f]=e.target.value;state.schedule=[];state.scores={};save();renderAll()});
+  $('entryArea').querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{state.entries=state.entries.filter(x=>x.id!==b.dataset.del);state.schedule=[];state.scores={};save();renderAll()});
+  bindGenderChecks();
+}
+function addBlank(){
+  if(isFixed())state.entries.push({id:'t'+state.nextId++,team:'Team '+(state.entries.length+1),p1:'',g1:'',p2:'',g2:''});
+  else state.entries.push({id:'p'+state.nextId++,name:'Player '+(state.entries.length+1),gender:''});
+  renderEntries();save()
+}
+$('manualAdd').onclick=addBlank;
+$('creatorJoin').onclick=()=>{if(isFixed()){state.entries.push({id:'t'+state.nextId++,team:'Creator Team',p1:'Creator',g1:'',p2:'',g2:''})}else state.entries.push({id:'p'+state.nextId++,name:'Creator',gender:''});renderEntries();save()};
+$('invitePlayers').onclick=()=>{$('inviteMsg').classList.remove('hidden');$('inviteMsg').innerHTML='<b>QR Invite is the next cloud feature.</b> The local test can generate schedules, but another phone cannot submit a player into your device without shared cloud storage. We can wire this once the Round Robin engine is approved.'};
+$('inviteManager').onclick=()=>{$('inviteMsg').classList.remove('hidden');$('inviteMsg').innerHTML='<b>Co-Manager needs cloud sync.</b> Two devices need to read/write the same event in real time. The permissions model can be Creator / Co-Manager / Player.'};
+
+function ids(){return state.entries.map(x=>x.id)}
+function circleRounds(list){
+  let arr=list.slice();if(arr.length%2)arr.push(null);let rounds=[];
+  for(let r=0;r<arr.length-1;r++){let pairs=[];for(let i=0;i<arr.length/2;i++){let a=arr[i],b=arr[arr.length-1-i];if(a&&b)pairs.push([a,b])}rounds.push(pairs);arr=[arr[0],arr[arr.length-1],...arr.slice(1,-1)]}
+  return rounds;
+}
+function chooseServe(sideA,sideB,serveCount){
+  let sa=sideA.reduce((n,id)=>n+(serveCount[id]||0),0),sb=sideB.reduce((n,id)=>n+(serveCount[id]||0),0);
+  let serving=sa<=sb?'A':'B';(serving==='A'?sideA:sideB).forEach(id=>serveCount[id]=(serveCount[id]||0)+1);return serving;
+}
+function assignSideAndCourt(matches,sideCount,courtCount,serveCount){
+  matches.forEach((m,idx)=>{
+    let A=m.a.slice(),B=m.b.slice();
+    let balA=A.reduce((n,id)=>n+(sideCount[id]?.A||0)-(sideCount[id]?.B||0),0),balB=B.reduce((n,id)=>n+(sideCount[id]?.A||0)-(sideCount[id]?.B||0),0);
+    if(balA>balB){[A,B]=[B,A]}
+    m.a=A;m.b=B;A.forEach(id=>{sideCount[id]=sideCount[id]||{A:0,B:0};sideCount[id].A++});B.forEach(id=>{sideCount[id]=sideCount[id]||{A:0,B:0};sideCount[id].B++});
+    let available=Array.from({length:state.courts},(_,i)=>i+1);
+    available.sort((c1,c2)=>{let u1=[...A,...B].reduce((n,id)=>n+(courtCount[id]?.[c1]||0),0),u2=[...A,...B].reduce((n,id)=>n+(courtCount[id]?.[c2]||0),0);return u1-u2});
+    m.court=available[idx%available.length];[...A,...B].forEach(id=>{courtCount[id]=courtCount[id]||{};courtCount[id][m.court]=(courtCount[id][m.court]||0)+1});
+    m.serving=chooseServe(A,B,serveCount);
+  });
+}
+function generateSingles(){
+  if(state.entries.length<2)throw new Error('Singles needs at least 2 players.');
+  let base=circleRounds(ids()),out=[],sideCount={},courtCount={},serveCount={};
+  for(let r=1;r<=state.rounds;r++){let pairs=base[(r-1)%base.length].slice(0,state.courts),ms=pairs.map((p,i)=>({id:'m'+r+'_'+i+'_'+Date.now(),round:r,a:[p[0]],b:[p[1]]}));assignSideAndCourt(ms,sideCount,courtCount,serveCount);out.push(...ms)}
+  return out;
+}
+function generateFixed(){
+  if(state.entries.length<2)throw new Error('Fixed Partners needs at least 2 teams.');
+  if(state.format==='mixed'){
+    let bad=state.entries.filter(t=>!t.g1||!t.g2||t.g1===t.g2);
+    if(bad.length)throw new Error('Mixed Doubles fixed teams must have one Male and one Female player on each team.');
+  }
+  let base=circleRounds(ids()),out=[],sideCount={},courtCount={},serveCount={};
+  for(let r=1;r<=state.rounds;r++){let pairs=base[(r-1)%base.length].slice(0,state.courts),ms=pairs.map((p,i)=>({id:'m'+r+'_'+i+'_'+Date.now(),round:r,a:[p[0]],b:[p[1]]}));assignSideAndCourt(ms,sideCount,courtCount,serveCount);out.push(...ms)}
+  return out;
+}
+function generateRotating(){
+  if(state.entries.length<4)throw new Error('Rotating Partners needs at least 4 players.');
+  let partnerCount={},oppCount={},sitCount={},sideCount={},courtCount={},serveCount={};ids().forEach(id=>sitCount[id]=0);
+  let out=[];
+  for(let r=1;r<=state.rounds;r++){
+    let all=state.entries.slice().sort((a,b)=>(sitCount[a.id]-sitCount[b.id])||a.id.localeCompare(b.id));
+    let capacity=Math.min(state.courts*4,Math.floor(all.length/4)*4),playing=all.slice(0,capacity),sitting=all.slice(capacity);sitting.forEach(p=>sitCount[p.id]++);
+    let pool=playing.map(p=>p.id),roundMatches=[];
+    for(let c=0;c<state.courts&&pool.length>=4;c++){
+      let quartet;
+      if(state.format==='mixed'){
+        let males=pool.filter(id=>state.entries.find(p=>p.id===id)?.gender==='Male'),females=pool.filter(id=>state.entries.find(p=>p.id===id)?.gender==='Female');
+        if(males.length>=2&&females.length>=2)quartet=[males[0],males[1],females[0],females[1]];
+        else quartet=pool.slice(0,4);
+      } else quartet=pool.slice(0,4);
+      quartet.forEach(id=>pool.splice(pool.indexOf(id),1));
+      let candidates=[];
+      if(state.format==='mixed'){
+        let M=quartet.filter(id=>state.entries.find(p=>p.id===id)?.gender==='Male'),F=quartet.filter(id=>state.entries.find(p=>p.id===id)?.gender==='Female');
+        if(M.length===2&&F.length===2)candidates=[[[M[0],F[0]],[M[1],F[1]]],[[M[0],F[1]],[M[1],F[0]]]];
+      }
+      if(!candidates.length)candidates=[[[quartet[0],quartet[1]],[quartet[2],quartet[3]]],[[quartet[0],quartet[2]],[quartet[1],quartet[3]]],[[quartet[0],quartet[3]],[quartet[1],quartet[2]]]];
+      let best=candidates[0],bestScore=1e9;
+      candidates.forEach(pr=>{let score=(partnerCount[pairKey(...pr[0])]||0)*20+(partnerCount[pairKey(...pr[1])]||0)*20;pr[0].forEach(a=>pr[1].forEach(b=>score+=(oppCount[pairKey(a,b)]||0)*3));if(score<bestScore){bestScore=score;best=pr}});
+      let [a,b]=best;partnerCount[pairKey(...a)]=(partnerCount[pairKey(...a)]||0)+1;partnerCount[pairKey(...b)]=(partnerCount[pairKey(...b)]||0)+1;a.forEach(x=>b.forEach(y=>oppCount[pairKey(x,y)]=(oppCount[pairKey(x,y)]||0)+1));
+      roundMatches.push({id:'m'+r+'_'+c+'_'+Date.now(),round:r,a,b,sitouts:sitting.map(x=>x.id)});
+    }
+    assignSideAndCourt(roundMatches,sideCount,courtCount,serveCount);out.push(...roundMatches)
+  }
+  return out;
+}
+$('generateSchedule').onclick=()=>{
+  try{state.schedule=state.type==='singles'?generateSingles():state.type==='fixed'?generateFixed():generateRotating();state.scores={};save();renderAll();document.querySelector('[data-tab="schedule"]').click()}
+  catch(e){alert(e.message)}
+};
+
+function label(id){
+  let e=state.entries.find(x=>x.id===id);if(!e)return'Unknown';
+  if(isFixed())return e.team||[e.p1,e.p2].filter(Boolean).join(' + ');
+  return e.name;
+}
+function sideLabel(arr){return arr.map(label).join(' + ')}
+function renderSchedule(){
+  let rounds=[...new Set(state.schedule.map(m=>m.round))].sort((a,b)=>a-b);
+  $('scheduleArea').innerHTML=rounds.length?rounds.map(r=>`<div class="round"><h3>Round ${r}</h3><div class="matches">${state.schedule.filter(m=>m.round===r).map(m=>{
+    let s=state.scores[m.id]||{a:'',b:''},done=s.a!==''&&s.b!==''&&Number(s.a)!==Number(s.b);
+    return `<div class="match ${done?'done':''}"><div class="head"><span>Court ${m.court}</span><span>${m.serving==='A'?'A Serves':'B Serves'}</span></div>
+    <div class="team">${esc(sideLabel(m.a))}${m.serving==='A'?'<span class="serve">SERVE</span>':''}</div>
+    <div class="team">${esc(sideLabel(m.b))}${m.serving==='B'?'<span class="serve">SERVE</span>':''}</div>
+    <div class="score"><input data-score="${m.id}:a" type="number" min="0" max="99" value="${esc(s.a)}"><b>–</b><input data-score="${m.id}:b" type="number" min="0" max="99" value="${esc(s.b)}"></div></div>`
+  }).join('')}</div></div>`).join(''):'<div class="alert">No schedule yet.</div>';
+  document.querySelectorAll('[data-score]').forEach(inp=>inp.onchange=e=>{
+    let [id,side]=e.target.dataset.score.split(':');
+    state.scores[id]=state.scores[id]||{a:'',b:''};
+    let raw=e.target.value;
+    state.scores[id][side]=raw;
+    let val=Number(raw), other=side==='a'?'b':'a';
+    let otherVal=Number(state.scores[id][other]);
+    if(Number.isInteger(val)&&val>=1&&val<=9){
+      if(state.scores[id][other]==='' || !Number.isFinite(otherVal) || otherVal<=9){
+        state.scores[id][other]='11';
+      }
+    }
+    save();renderAll()
+  })
+}
+function standings(){
+  let map={};state.entries.forEach(e=>map[e.id]={id:e.id,name:label(e.id),gp:0,w:0,l:0,pf:0,pa:0,pd:0});
+  state.schedule.forEach(m=>{let s=state.scores[m.id];if(!s||s.a===''||s.b==='')return;let A=Number(s.a),B=Number(s.b);if(!Number.isFinite(A)||!Number.isFinite(B)||A===B)return;
+    m.a.forEach(id=>{let x=map[id];x.gp++;x.pf+=A;x.pa+=B;if(A>B)x.w++;else x.l++});m.b.forEach(id=>{let x=map[id];x.gp++;x.pf+=B;x.pa+=A;if(B>A)x.w++;else x.l++})
+  });Object.values(map).forEach(x=>x.pd=x.pf-x.pa);return Object.values(map).sort((a,b)=>b.w-a.w||b.pd-a.pd||b.pf-a.pf||a.name.localeCompare(b.name))
+}
+function renderStandings(){
+  let rows=standings();$('standingsArea').innerHTML=`<table><thead><tr><th>#</th><th>${isFixed()?'Team':'Player'}</th><th>GP</th><th>W</th><th>L</th><th>PF</th><th>PA</th><th>+/-</th></tr></thead><tbody>${rows.map((x,i)=>`<tr><td>${i===0?'🥇':i===1?'🥈':i===2?'🥉':i+1}</td><td><b>${esc(x.name)}</b></td><td>${x.gp}</td><td>${x.w}</td><td>${x.l}</td><td>${x.pf}</td><td>${x.pa}</td><td>${x.pd}</td></tr>`).join('')}</tbody></table>`
+}
+function renderAll(){
+  $('sumName').textContent=state.eventName;$('sumFormat').textContent=(state.format==='mixed'?'Mixed Doubles':state.format[0].toUpperCase()+state.format.slice(1))+' · '+(state.type==='rotating'?'Rotating':state.type==='fixed'?'Fixed':'Individual');$('sumCourts').textContent=state.courts;$('sumRounds').textContent=state.rounds;renderEntries();renderSchedule();renderStandings()
+}
+
+try{
+  let saved=JSON.parse(localStorage.getItem('bert_rr_wizard_test_v1')||'null');
+  if(saved&&saved.eventName){state=saved;$('wizard').classList.add('hidden');$('eventApp').classList.remove('hidden');renderAll()}
+}catch(e){}
+</script>
+</body>
+</html>

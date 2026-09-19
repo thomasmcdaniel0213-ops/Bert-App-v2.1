@@ -1,0 +1,437 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0a8fca">
+<meta name="application-name" content="Bert v2 Test">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Bert v2 Test">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<title>Bert v2 Test — Tournament Builder + Live Control</title>
+<style>
+:root{
+  --bg:#f4f6f8;--card:#fff;--ink:#16202a;--muted:#65717c;--line:#d6dde3;
+  --accent:#0a7899;--accent2:#e7f5fa;--ok:#dff3e4;--warn:#fff1b8;--danger:#fde5e5;
+  --queue:#fff;--playing:#fff1a8;--done:#dff3e4;--locked:#eef2f5;
+}
+*{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--ink)}
+button,input,select{font:inherit}.hidden{display:none!important}
+header{background:#fff;border-bottom:1px solid var(--line);padding:12px 16px;position:sticky;top:0;z-index:20}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px}.brand img{width:44px;height:44px;border-radius:10px}
+h1{font-size:20px;margin:0}h2{font-size:19px;margin:0 0 8px}h3{font-size:15px;margin:0 0 7px}
+.sub{font-size:12px;color:var(--muted);margin-top:3px}.wrap{max-width:1280px;margin:auto;padding:14px}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}.tabs button{min-height:38px}
+button,.btn{border:1px solid var(--line);background:#fff;border-radius:8px;padding:8px 11px;cursor:pointer;min-height:40px}
+button.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+button.warn{background:var(--warn);border-color:#d9bd50}button.danger{background:#fff0f0;border-color:#e3aaaa}
+button.active{background:var(--accent2);border-color:#85c9dd;font-weight:700}
+button:disabled{opacity:.45;cursor:not-allowed}
+.card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px}.grid{display:grid;gap:10px}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.summary{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}.big{font-size:23px;font-weight:700}.meta{font-size:12px;color:var(--muted)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:end}.grow{flex:1;min-width:180px}
+input,select{width:100%;border:1px solid var(--line);border-radius:8px;padding:9px;background:#fff;color:var(--ink);font-size:16px}
+label span{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}
+.pill{display:inline-block;border-radius:999px;padding:4px 8px;background:var(--accent2);font-size:12px}
+.alert{padding:10px 12px;border-radius:9px;background:var(--warn);font-size:13px;margin:10px 0}.ok{background:var(--ok)}.dangerbox{background:var(--danger)}
+.library{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.tourney-card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:13px}
+.tourney-card .actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.teamedit{display:grid;grid-template-columns:58px 1.2fr 1.2fr 1.2fr 135px 72px;gap:7px;align-items:center;padding:7px 0;border-bottom:1px solid var(--line)}
+.poolgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.poolcard{background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px}
+.teamline{padding:7px 0;border-bottom:1px solid var(--line)}.teamline:last-child{border-bottom:0}
+.match{border:1px solid var(--line);border-radius:11px;padding:10px;background:var(--queue)}.match.playing{background:var(--playing)}.match.done{background:var(--done)}
+.match-head{display:flex;justify-content:space-between;gap:8px;font-size:11px;color:var(--muted)}.team{font-weight:700;font-size:14px;margin-top:4px;overflow-wrap:anywhere}
+.scoreline{display:flex;gap:6px;align-items:center;margin-top:8px}.scoreline input{width:64px}
+.schedule-round{margin:0 0 16px}.courts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.status-locked{background:var(--locked);padding:9px 10px;border-radius:9px}.status-live{background:var(--warn);padding:9px 10px;border-radius:9px}
+.live-layout{display:grid;grid-template-columns:1fr 1.15fr 1fr;gap:12px}.live-col{min-width:0}.live-list{display:grid;gap:8px}
+.court-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:7px;margin:10px 0}.court{border:1px solid var(--line);border-radius:9px;padding:8px;background:#fff}.court.busy{background:var(--playing)}
+.tablewrap{overflow:auto}table{width:100%;border-collapse:collapse}th,td{border-bottom:1px solid var(--line);padding:7px;font-size:13px;text-align:left;vertical-align:top}th{font-size:11px;text-transform:uppercase;color:var(--muted);background:#fafbfc}
+.bracket{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.slot{background:#fff;border:1px solid var(--line);border-radius:9px;padding:9px;margin-bottom:8px}
+.qualify td{background:var(--ok)}.footer-actions{display:flex;gap:8px;flex-wrap:wrap}
+@media(max-width:1000px){.library{grid-template-columns:1fr 1fr}.summary{grid-template-columns:repeat(3,1fr)}.courts{grid-template-columns:repeat(2,1fr)}.live-layout{grid-template-columns:1fr}.court-grid{grid-template-columns:repeat(4,1fr)}.teamedit{grid-template-columns:45px 1fr 1fr 1fr 120px 68px}}
+@media(max-width:640px){header{position:static}.wrap{padding:10px}.library,.g2,.g3,.poolgrid{grid-template-columns:1fr}.summary{grid-template-columns:repeat(2,1fr)}.courts{grid-template-columns:1fr}.court-grid{grid-template-columns:repeat(2,1fr)}.teamedit{grid-template-columns:1fr}.tabs{overflow-x:auto;flex-wrap:nowrap;padding-bottom:4px}.tabs button{white-space:nowrap}.bracket{grid-template-columns:1fr}}
+@media print{header,.no-print{display:none!important}body{background:#fff}.wrap{max-width:none;padding:0}.card,.match,.poolcard{break-inside:avoid}}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+<header>
+  <div class="topbar">
+    <div class="brand"><img src="icon-120.png" alt="Bert icon"><div><h1>Bert v2 Test</h1><div id="headSub" class="sub">Tournament Builder + Live Command Center</div></div></div>
+    <div class="row"><span id="saveStatus" class="pill">Ready</span><button id="homeBtn" class="no-print">My Tournaments</button></div>
+  </div>
+  <div id="tabs" class="tabs hidden no-print">
+    <button data-tab="setup" class="active">Setup</button>
+    <button data-tab="teams">Teams</button>
+    <button data-tab="pools">Pools</button>
+    <button data-tab="schedule">Schedule</button>
+    <button data-tab="bracket">Bracket</button>
+    <button data-tab="live">Live Control</button>
+    <button data-tab="standings">Standings</button>
+    <button data-tab="backup">Print / Backup</button>
+  </div>
+</header>
+
+<main class="wrap">
+<section id="libraryView">
+  <div class="row" style="justify-content:space-between"><div><h2>My Tournaments</h2><div class="meta">Create, reopen, duplicate, archive, or import a tournament.</div></div><button id="newTournament" class="primary">+ Create New Tournament</button></div>
+  <div id="libraryCards" class="library" style="margin-top:12px"></div>
+  <div class="card" style="margin-top:12px">
+    <h3>Import Tournament Backup</h3>
+    <div class="row"><input id="libraryImportFile" type="file" accept=".json,application/json" style="max-width:360px"><button id="libraryImportBtn">Import JSON</button></div>
+  </div>
+</section>
+
+<section id="appView" class="hidden">
+  <section id="setup" class="tabpage">
+    <div class="summary">
+      <div class="card"><div class="meta">Teams</div><div id="sumTeams" class="big"></div></div>
+      <div class="card"><div class="meta">Beginner</div><div id="sumB" class="big"></div></div>
+      <div class="card"><div class="meta">Intermediate</div><div id="sumI" class="big"></div></div>
+      <div class="card"><div class="meta">Courts</div><div id="sumCourts" class="big"></div></div>
+      <div class="card"><div class="meta">Structure</div><div id="sumVersion" class="big"></div></div>
+    </div>
+    <div id="lockBanner" class="status-locked" style="margin-top:10px"></div>
+
+    <div class="grid g2" style="margin-top:12px">
+      <div class="card">
+        <h3>Tournament Setup</h3>
+        <div class="row">
+          <label class="grow"><span>Tournament Name</span><input id="tName"></label>
+          <label style="width:160px"><span>Date</span><input id="tDate" type="date"></label>
+          <label style="width:120px"><span>Courts</span><input id="tCourts" type="number" min="1" max="50"></label>
+        </div>
+        <div class="row" style="margin-top:8px">
+          <label style="min-width:180px"><span>Status</span><select id="tStatus"><option>Draft</option><option>Ready</option><option>Live</option><option>Completed</option><option>Archived</option></select></label>
+          <label style="min-width:220px"><span>Playoff Format</span><select id="playoffFormat"><option value="none">None</option><option value="single4">4-Team Single Elimination</option><option value="single8">8-Team Single Elimination</option></select></label>
+        </div>
+        <div class="footer-actions" style="margin-top:10px"><button id="saveSetup" class="primary">Save Setup</button><button id="lockBtn"></button></div>
+      </div>
+      <div class="card">
+        <h3>Structure Safety</h3>
+        <p class="meta">Team/player spelling changes are safe. Adding/removing teams, changing divisions, moving pools, or rebuilding can alter the draw.</p>
+        <div id="dirtyMsg" class="alert hidden"></div>
+        <button id="rebuildBtn" class="danger">Rebuild Tournament Structure</button>
+        <p class="meta">Rebuild requires typing <b>REBUILD</b>. Every rebuild increments the structure version so old printouts can be identified as stale.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="teams" class="tabpage hidden">
+    <div class="row" style="justify-content:space-between"><div><h2>Team Manager</h2><div class="meta">Edit station. Name/player edits do not change the draw.</div></div><button id="addTeam" class="primary">+ Add Team</button></div>
+    <div class="card" style="margin-top:10px">
+      <div class="row">
+        <label class="grow"><span>Upload Team Roster (.xlsx, .xls, .csv)</span><input id="rosterFile" type="file" accept=".xlsx,.xls,.csv,text/csv"></label>
+        <button id="importRoster">Import Roster</button>
+      </div>
+      <div class="meta">Expected columns: Team Name, Player 1, Player 2, Division. XLS/XLSX import needs an internet connection in this test build; CSV works natively.</div>
+    </div>
+    <div id="teamEditor" class="card" style="margin-top:10px"></div>
+  </section>
+
+  <section id="pools" class="tabpage hidden">
+    <div class="row" style="justify-content:space-between"><div><h2>Main Draw Pools</h2><div class="meta">Manual pool moves are allowed only while structure is unlocked.</div></div></div>
+    <div class="grid g2" style="margin-top:10px"><div><h3>Beginner</h3><div id="bPools" class="poolgrid"></div></div><div><h3>Intermediate</h3><div id="iPools" class="poolgrid"></div></div></div>
+  </section>
+
+  <section id="schedule" class="tabpage hidden">
+    <div class="row"><label class="grow"><span>Find team/player</span><input id="search" placeholder="Search"></label><label style="min-width:160px"><span>Round</span><select id="roundFilter"><option value="all">All rounds</option></select></label></div>
+    <div class="alert ok"><b>Status colors:</b> White = In Queue · Yellow = In Progress · Green = Completed.</div>
+    <div id="scheduleArea"></div>
+  </section>
+
+  <section id="bracket" class="tabpage hidden">
+    <div class="row" style="justify-content:space-between"><div><h2>Playoff Brackets</h2><div class="meta">Optional. Seed from current standings after pool play.</div></div><button id="seedPlayoffs" class="primary">Create / Refresh Playoff Bracket</button></div>
+    <div class="grid g2" style="margin-top:10px"><div><h3>Beginner</h3><div id="bBracket"></div></div><div><h3>Intermediate</h3><div id="iBracket"></div></div></div>
+  </section>
+
+  <section id="live" class="tabpage hidden">
+    <div class="row" style="justify-content:space-between"><div><h2>Live Tournament Control</h2><div class="meta">Run the event without hunting through the full schedule.</div></div><button id="autoNext" class="primary">Send Next Eligible Match</button></div>
+    <div id="courtGrid" class="court-grid"></div>
+    <div class="live-layout">
+      <div class="live-col"><h3>In Queue <span id="qCount" class="meta"></span></h3><div id="queueList" class="live-list"></div></div>
+      <div class="live-col"><h3>In Progress <span id="pCount" class="meta"></span></h3><div id="playingList" class="live-list"></div></div>
+      <div class="live-col"><h3>Recently Completed <span id="dCount" class="meta"></span></h3><div id="doneList" class="live-list"></div></div>
+    </div>
+  </section>
+
+  <section id="standings" class="tabpage hidden">
+    <div class="alert"><b>Tiebreak:</b> wins → point differential → points scored.</div>
+    <div class="grid g2"><div><h2>Beginner</h2><div id="bStand"></div></div><div><h2>Intermediate</h2><div id="iStand"></div></div></div>
+  </section>
+
+  <section id="backup" class="tabpage hidden">
+    <div class="grid g2">
+      <div class="card"><h3>Backup / Transfer</h3><p class="meta">JSON remains the portable safety backup, but normal use no longer requires importing it.</p><div class="footer-actions"><button id="exportJson" class="primary">Download JSON Backup</button><button id="importJsonBtn">Import JSON Into This Tournament</button></div><input id="importJsonFile" type="file" accept=".json,application/json" style="margin-top:8px"></div>
+      <div class="card"><h3>Print</h3><p class="meta">Print the current browser view. Every page should be treated as Structure Version <b id="printVersion"></b>.</p><div class="footer-actions"><button id="printBtn">Print Current View</button><button id="exportScheduleCsv">Download Schedule CSV</button></div></div>
+    </div>
+  </section>
+</section>
+</main>
+
+<script>
+const LIBKEY='bert_v2_test_library_v1';
+const ACTIVEKEY='bert_v2_test_active_v1';
+const SEED_STATE={"teams": [{"id": "t1", "team_no": 1, "name": "Team Butler", "players": "Rebecca Butler + Kyle Butler", "division": "Beginner"}, {"id": "t2", "team_no": 2, "name": "Boll So Hard", "players": "Jovanny Villada + Mitchell Boll", "division": "Beginner"}, {"id": "t4", "team_no": 4, "name": "Team Beneze", "players": "Beneze + TBD", "division": "Beginner"}, {"id": "t5", "team_no": 5, "name": "Dinking Devers", "players": "Liz Dever + Mason Dever", "division": "Beginner"}, {"id": "t9", "team_no": 9, "name": "Team McStay", "players": "Michael McStay + TBD", "division": "Beginner"}, {"id": "t10", "team_no": 10, "name": "Gant Catch A Break", "players": "Margaret Gant + Coleman Gant", "division": "Beginner"}, {"id": "t11", "team_no": 11, "name": "Driving’ Domesciks", "players": "Nick Domesick + Ashli Domesick", "division": "Beginner"}, {"id": "t12", "team_no": 12, "name": "Slice & Spann", "players": "Taylor Spann + John David Spann", "division": "Beginner"}, {"id": "t13", "team_no": 13, "name": "Team Pate/Avita", "players": "Cameron Pate + Angela Avita", "division": "Beginner"}, {"id": "t17", "team_no": 17, "name": "Team Clem/Rogers", "players": "Granton Clem + Gunnar Rogers", "division": "Beginner"}, {"id": "t18", "team_no": 18, "name": "Cooking in the Kitchen w/ Chloe + Cat", "players": "Chloe Hogan + Cat Risse", "division": "Beginner"}, {"id": "t20", "team_no": 20, "name": "Team Sanchez", "players": "Nick Sanchez + TBD", "division": "Beginner"}, {"id": "t21", "team_no": 21, "name": "Team Ellis Smith", "players": "Pelon + Isaac", "division": "Beginner"}, {"id": "t24", "team_no": 24, "name": "The Morning Bar", "players": "Lisa S + TBD", "division": "Beginner"}, {"id": "t25", "team_no": 25, "name": "Fort Worth Bible Church #1", "players": "April Victor + Raena Drayton", "division": "Beginner"}, {"id": "t26", "team_no": 26, "name": "Fort Worth Bible Church #2", "players": "Noah Everhart + TBD", "division": "Beginner"}, {"id": "t27", "team_no": 27, "name": "Team TyFord", "players": "Ford Braly + Ty Smith", "division": "Beginner"}, {"id": "t3", "team_no": 3, "name": "Calvin & Higgins", "players": "Seth Higgins + Calvin Wimmer", "division": "Intermediate"}, {"id": "t6", "team_no": 6, "name": "Team Banning", "players": "Ryan Banning + TBD", "division": "Intermediate"}, {"id": "t7", "team_no": 7, "name": "Team Boenker", "players": "Allison Boenker + Andy Boenker", "division": "Intermediate"}, {"id": "t8", "team_no": 8, "name": "Picklr Girlies", "players": "Jenna Davis + Kat Goodfried", "division": "Intermediate"}, {"id": "t14", "team_no": 14, "name": "Artz Aces", "players": "Aimee Artz + Michael Duffy", "division": "Intermediate"}, {"id": "t15", "team_no": 15, "name": "Team LattiGoff", "players": "Liz Lattimore + Stef Goff", "division": "Intermediate"}, {"id": "t16", "team_no": 16, "name": "The Cherry Jubilees", "players": "Jill Denmer + Stephanie Cherry", "division": "Intermediate"}, {"id": "t19", "team_no": 19, "name": "Team Rich Ross", "players": "Rich Queen + Jared Ross", "division": "Intermediate"}, {"id": "t22", "team_no": 22, "name": "Topspin Tobins", "players": "Stephen Tobin + Becky Tobin", "division": "Intermediate"}, {"id": "t23", "team_no": 23, "name": "Body Bag Browns", "players": "Brian Brown + Paige Brown", "division": "Intermediate"}, {"id": "t28", "team_no": 28, "name": "The Maeder Matchup", "players": "Andrew Maeder + TBD", "division": "Intermediate"}, {"id": "t29", "team_no": 29, "name": "Stacking Stolz", "players": "Emily Stolz + Ben Stolz", "division": "Intermediate"}, {"id": "t30", "team_no": 30, "name": "Team Bradshaw", "players": "Megan Bradshaw + Kathryn Edwards", "division": "Intermediate"}, {"id": "n100", "team_no": 31, "name": "Team Thanh Pham", "players": "Thanh Pham + TBD", "division": "Intermediate"}], "pools": {"Beginner": [{"name": "A", "teams": ["t1", "t9", "t13", "t21", "t27"]}, {"name": "B", "teams": ["t2", "t10", "t17", "t24"]}, {"name": "C", "teams": ["t4", "t11", "t18", "t25"]}, {"name": "D", "teams": ["t5", "t12", "t20", "t26"]}], "Intermediate": [{"name": "A", "teams": ["t3", "t14", "t22", "t7"]}, {"name": "B", "teams": ["t6", "t23", "t29"]}, {"name": "C", "teams": ["t16", "t8", "t30", "t15"]}, {"name": "D", "teams": ["t19", "t28", "n100"]}]}, "schedule": [{"id": "B-A-0-0-t9-t27", "division": "Beginner", "pool": "A", "kind": "Pool", "a": "t9", "b": "t27", "poolRound": 0, "wave": 1, "court": 1}, {"id": "B-A-0-1-t13-t21", "division": "Beginner", "pool": "A", "kind": "Pool", "a": "t13", "b": "t21", "poolRound": 0, "wave": 1, "court": 2}, {"id": "B-B-0-0-t2-t24", "division": "Beginner", "pool": "B", "kind": "Pool", "a": "t2", "b": "t24", "poolRound": 0, "wave": 1, "court": 3}, {"id": "B-B-0-1-t10-t17", "division": "Beginner", "pool": "B", "kind": "Pool", "a": "t10", "b": "t17", "poolRound": 0, "wave": 1, "court": 4}, {"id": "B-C-0-0-t4-t25", "division": "Beginner", "pool": "C", "kind": "Pool", "a": "t4", "b": "t25", "poolRound": 0, "wave": 1, "court": 5}, {"id": "B-C-0-1-t11-t18", "division": "Beginner", "pool": "C", "kind": "Pool", "a": "t11", "b": "t18", "poolRound": 0, "wave": 1, "court": 6}, {"id": "B-D-0-0-t5-t26", "division": "Beginner", "pool": "D", "kind": "Pool", "a": "t5", "b": "t26", "poolRound": 0, "wave": 1, "court": 7}, {"id": "B-D-0-1-t12-t20", "division": "Beginner", "pool": "D", "kind": "Pool", "a": "t12", "b": "t20", "poolRound": 0, "wave": 1, "court": 8}, {"id": "I-A-0-0-t3-t7", "division": "Intermediate", "pool": "A", "kind": "Pool", "a": "t3", "b": "t7", "poolRound": 0, "wave": 1, "court": 9}, {"id": "I-A-0-1-t14-t22", "division": "Intermediate", "pool": "A", "kind": "Pool", "a": "t14", "b": "t22", "poolRound": 0, "wave": 1, "court": 10}, {"id": "I-B-0-0-t23-t29", "division": "Intermediate", "pool": "B", "kind": "Pool", "a": "t23", "b": "t29", "poolRound": 0, "wave": 1, "court": 11}, {"id": "I-C-0-0-t16-t15", "division": "Intermediate", "pool": "C", "kind": "Pool", "a": "t16", "b": "t15", "poolRound": 0, "wave": 2, "court": 1}, {"id": "I-C-0-1-t8-t30", "division": "Intermediate", "pool": "C", "kind": "Pool", "a": "t8", "b": "t30", "poolRound": 0, "wave": 2, "court": 2}, {"id": "I-D-0-0-t28-n100", "division": "Intermediate", "pool": "D", "kind": "Pool", "a": "t28", "b": "n100", "poolRound": 0, "wave": 2, "court": 3}, {"id": "B-A-1-0-t1-t27", "division": "Beginner", "pool": "A", "kind": "Pool", "a": "t1", "b": "t27", "poolRound": 1, "wave": 3, "court": 1}, {"id": "B-A-1-1-t9-t13", "division": "Beginner", "pool": "A", "kind": "Pool", "a": "t9", "b": "t13", "poolRound": 1, "wave": 3, "court": 2}, {"id": "B-B-1-0-t2-t17", "division": "Beginner", "pool": "B", "kind": "Pool", "a": "t2", "b": "t17", "poolRound": 1, "wave": 3, "court": 3}, {"id": "B-B-1-1-t24-t10", "division": "Beginner", "pool": "B", "kind": "Pool", "a": "t24", "b": "t10", "poolRound": 1, "wave": 3, "court": 4}, {"id": "B-C-1-0-t4-t18", "division": "Beginner", "pool": "C", "kind": "Pool", "a": "t4", "b": "t18", "poolRound": 1, "wave": 3, "court": 5}, {"id": "B-C-1-1-t25-t11", "division": "Beginner", "pool": "C", "kind": "Pool", "a": "t25", "b": "t11", "poolRound": 1, "wave": 3, "court": 6}, {"id": "B-D-1-0-t5-t20", "division": "Beginner", "pool": "D", "kind": "Pool", "a": "t5", "b": "t20", "poolRound": 1, "wave": 3, "court": 7}, {"id": "B-D-1-1-t26-t12", "division": "Beginner", "pool": "D", "kind": "Pool", "a": "t26", "b": "t12", "poolRound": 1, "wave": 3, "court": 8}, {"id": "I-A-1-0-t3-t22", "division": "Intermediate", "pool": "A", "kind": "Pool", "a": "t3", "b": "t22", "poolRound": 1, "wave": 3, "court": 9}, {"id": "I-A-1-1-t7-t14", "division": "Intermediate", "pool": "A", "kind": "Pool", "a": "t7", "b": "t14", "poolRound": 1, "wave": 3, "court": 10}, {"id": "I-B-1-0-t6-t29", "division": "Intermediate", "pool": "B", "kind": "Pool", "a": "t6", "b": "t29", "poolRound": 1, "wave": 3, "court": 11}, {"id": "I-C-1-0-t16-t30", "division": "Intermediate", "pool": "C", "kind": "Pool", "a": "t16", "b": "t30", "poolRound": 1, "wave": 4, "court": 1}, {"id": "I-C-1-1-t15-t8", "division": "Intermediate", "pool": "C", "kind": "Pool", "a": "t15", "b": "t8", "poolRound": 1, "wave": 4, "court": 2}, {"id": "I-D-1-0-t19-n100", "division": "Intermediate", "pool": "D", "kind": "Pool", "a": "t19", "b": "n100", "poolRound": 1, "wave": 4, "court": 3}, {"id": "B-A-2-0-t1-t21", "division": "Beginner", "pool": "A", "kind": "Pool", "a": "t1", "b": "t21", "poolRound": 2, "wave": 5, "court": 1}, {"id": "B-A-2-1-t27-t13", "division": "Beginner", "pool": "A", "kind": "Pool", "a": "t27", "b": "t13", "poolRound": 2, "wave": 5, "court": 2}, {"id": "B-B-2-0-t2-t10", "division": "Beginner", "pool": "B", "kind": "Pool", "a": "t2", "b": "t10", "poolRound": 2, "wave": 5, "court": 3}, {"id": "B-B-2-1-t17-t24", "division": "Beginner", "pool": "B", "kind": "Pool", "a": "t17", "b": "t24", "poolRound": 2, "wave": 5, "court": 4}, {"id": "B-C-2-0-t4-t11", "division": "Beginner", "pool": "C", "kind": "Pool", "a": "t4", "b": "t11", "poolRound": 2, "wave": 5, "court": 5}, {"id": "B-C-2-1-t18-t25", "division": "Beginner", "pool": "C", "kind": "Pool", "a": "t18", "b": "t25", "poolRound": 2, "wave": 5, "court": 6}, {"id": "B-D-2-0-t5-t12", "division": "Beginner", "pool": "D", "kind": "Pool", "a": "t5", "b": "t12", "poolRound": 2, "wave": 5, "court": 7}, {"id": "B-D-2-1-t20-t26", "division": "Beginner", "pool": "D", "kind": "Pool", "a": "t20", "b": "t26", "poolRound": 2, "wave": 5, "court": 8}, {"id": "I-A-2-0-t3-t14", "division": "Intermediate", "pool": "A", "kind": "Pool", "a": "t3", "b": "t14", "poolRound": 2, "wave": 5, "court": 9}, {"id": "I-A-2-1-t22-t7", "division": "Intermediate", "pool": "A", "kind": "Pool", "a": "t22", "b": "t7", "poolRound": 2, "wave": 5, "court": 10}, {"id": "I-B-2-0-t6-t23", "division": "Intermediate", "pool": "B", "kind": "Pool", "a": "t6", "b": "t23", "poolRound": 2, "wave": 5, "court": 11}, {"id": "I-C-2-0-t16-t8", "division": "Intermediate", "pool": "C", "kind": "Pool", "a": "t16", "b": "t8", "poolRound": 2, "wave": 6, "court": 1}, {"id": "I-C-2-1-t30-t15", "division": "Intermediate", "pool": "C", "kind": "Pool", "a": "t30", "b": "t15", "poolRound": 2, "wave": 6, "court": 2}, {"id": "I-D-2-0-t19-t28", "division": "Intermediate", "pool": "D", "kind": "Pool", "a": "t19", "b": "t28", "poolRound": 2, "wave": 6, "court": 3}, {"id": "B-A-3-0-t1-t13", "division": "Beginner", "pool": "A", "kind": "Pool", "a": "t1", "b": "t13", "poolRound": 3, "wave": 7, "court": 1}, {"id": "B-A-3-1-t21-t9", "division": "Beginner", "pool": "A", "kind": "Pool", "a": "t21", "b": "t9", "poolRound": 3, "wave": 7, "court": 2}, {"id": "B-A-4-0-t1-t9", "division": "Beginner", "pool": "A", "kind": "Pool", "a": "t1", "b": "t9", "poolRound": 4, "wave": 8, "court": 1}, {"id": "B-A-4-1-t21-t27", "division": "Beginner", "pool": "A", "kind": "Pool", "a": "t21", "b": "t27", "poolRound": 4, "wave": 8, "court": 2}], "scores": {}, "playoffs": {"Beginner": null, "Intermediate": null}, "dirty": false, "nextId": 101};
+
+const $=id=>document.getElementById(id);
+const clone=x=>JSON.parse(JSON.stringify(x));
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid=()=> 't_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7);
+
+function seedTournament(){
+  return {
+    id:'paddle_battle_2026',
+    name:'5th Annual Paddle Battle',
+    date:'2026-09-17',
+    courts:11,
+    status:'Completed',
+    playoffFormat:'single8',
+    structureLocked:true,
+    structureVersion:1,
+    dirty:false,
+    teams:clone(SEED_STATE.teams),
+    pools:clone(SEED_STATE.pools),
+    schedule:clone(SEED_STATE.schedule).map(g=>({...g,status:'queue',actualCourt:g.court})),
+    scores:clone(SEED_STATE.scores||{}),
+    playoffs:clone(SEED_STATE.playoffs||{Beginner:null,Intermediate:null}),
+    nextId:SEED_STATE.nextId||100,
+    createdAt:Date.now(),
+    updatedAt:Date.now()
+  };
+}
+function blankTournament(){
+  return {id:uid(),name:'New Tournament',date:'',courts:8,status:'Draft',playoffFormat:'single8',structureLocked:false,structureVersion:0,dirty:true,teams:[],pools:{Beginner:[],Intermediate:[]},schedule:[],scores:{},playoffs:{Beginner:null,Intermediate:null},nextId:1,createdAt:Date.now(),updatedAt:Date.now()};
+}
+function loadLib(){
+  try{let x=JSON.parse(localStorage.getItem(LIBKEY)||'null');if(Array.isArray(x)&&x.length)return x}catch(e){}
+  let seeded=[seedTournament()];localStorage.setItem(LIBKEY,JSON.stringify(seeded));return seeded;
+}
+let library=loadLib(),activeId=localStorage.getItem(ACTIVEKEY)||'',state=null;
+function saveLib(){
+  if(state){state.updatedAt=Date.now();let i=library.findIndex(t=>t.id===state.id);if(i>=0)library[i]=state;else library.push(state)}
+  localStorage.setItem(LIBKEY,JSON.stringify(library));$('saveStatus').textContent='Saved';
+  setTimeout(()=>{$('saveStatus').textContent='Ready'},600);
+}
+function openTournament(id){
+  saveLib();let t=library.find(x=>x.id===id);if(!t)return;state=clone(t);activeId=id;localStorage.setItem(ACTIVEKEY,id);
+  $('libraryView').classList.add('hidden');$('appView').classList.remove('hidden');$('tabs').classList.remove('hidden');$('headSub').textContent=state.name+' • '+state.status;
+  renderAll();openTab('setup');
+}
+function goHome(){saveLib();state=null;activeId='';localStorage.removeItem(ACTIVEKEY);$('appView').classList.add('hidden');$('tabs').classList.add('hidden');$('libraryView').classList.remove('hidden');$('headSub').textContent='Tournament Builder + Live Command Center';renderLibrary()}
+function renderLibrary(){
+  library.sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0));
+  $('libraryCards').innerHTML=library.map(t=>`<div class="tourney-card"><div class="row" style="justify-content:space-between;align-items:center"><b>${esc(t.name)}</b><span class="pill">${esc(t.status)}</span></div><div class="meta" style="margin-top:5px">${esc(t.date||'No date')} · ${t.teams?.length||0} teams · v${t.structureVersion||0}</div><div class="actions"><button data-open="${t.id}" class="primary">Open</button><button data-dup="${t.id}">Duplicate</button><button data-archive="${t.id}">${t.status==='Archived'?'Unarchive':'Archive'}</button><button data-delete="${t.id}" class="danger">Delete</button></div></div>`).join('');
+  document.querySelectorAll('[data-open]').forEach(b=>b.onclick=()=>openTournament(b.dataset.open));
+  document.querySelectorAll('[data-dup]').forEach(b=>b.onclick=()=>duplicateTournament(b.dataset.dup));
+  document.querySelectorAll('[data-archive]').forEach(b=>b.onclick=()=>{let t=library.find(x=>x.id===b.dataset.archive);t.status=t.status==='Archived'?'Draft':'Archived';t.updatedAt=Date.now();saveLib();renderLibrary()});
+  document.querySelectorAll('[data-delete]').forEach(b=>b.onclick=()=>{let t=library.find(x=>x.id===b.dataset.delete);if(confirm(`Delete "${t.name}" from this device? Export a JSON backup first if you may need it later.`)){library=library.filter(x=>x.id!==t.id);saveLib();renderLibrary()}});
+}
+function duplicateTournament(id){
+  let src=library.find(x=>x.id===id);if(!src)return;let n=clone(src);n.id=uid();n.name=src.name+' Copy';n.status='Draft';n.structureLocked=false;n.scores={};n.playoffs={Beginner:null,Intermediate:null};n.schedule=(n.schedule||[]).map(g=>({...g,status:'queue',actualCourt:g.court}));n.createdAt=n.updatedAt=Date.now();library.push(n);saveLib();renderLibrary()
+}
+function ensureGameState(){
+  state.schedule=(state.schedule||[]).map(g=>({...g,status:g.status||((state.scores?.[g.id]?.a!==''&&state.scores?.[g.id]?.b!=='')?'done':'queue'),actualCourt:g.actualCourt??g.court}));
+}
+function teamById(id){return state.teams.find(t=>t.id===id)}
+function teamsByDiv(div){return state.teams.filter(t=>t.division===div)}
+function poolName(div,id){let p=(state.pools[div]||[]).find(p=>p.teams.includes(id));return p?.name||''}
+function markDirty(msg='Roster/structure changed. Rebuild is required before the draw matches the roster.'){state.dirty=true;state.dirtyMessage=msg;saveLib();renderSetup()}
+function structuralAllowed(){if(!state.structureLocked)return true;alert('Tournament structure is LOCKED. Unlock it from Setup before changing teams, divisions, pools, or draw structure.');return false}
+
+function pairRoundRobin(ids){
+  let arr=ids.slice();if(arr.length%2)arr.push(null);let rounds=[];
+  for(let r=0;r<arr.length-1;r++){let pairs=[];for(let i=0;i<arr.length/2;i++){let a=arr[i],b=arr[arr.length-1-i];if(a&&b)pairs.push([a,b])}rounds.push(pairs);arr=[arr[0],arr[arr.length-1],...arr.slice(1,-1)]}
+  return rounds;
+}
+function makePools(div){
+  let ids=teamsByDiv(div).map(t=>t.id);if(!ids.length)return[];
+  let target=div==='Beginner'?4.25:4.0, count=Math.max(1,Math.ceil(ids.length/target));
+  let ps=Array.from({length:count},(_,i)=>({name:String.fromCharCode(65+i),teams:[]}));
+  ids.forEach((id,i)=>ps[i%count].teams.push(id));return ps;
+}
+function buildGames(){
+  let out=[];
+  ['Beginner','Intermediate'].forEach(div=>(state.pools[div]||[]).forEach(p=>{
+    pairRoundRobin(p.teams).forEach((pairs,pr)=>pairs.forEach((ab,j)=>out.push({id:`${div[0]}-${p.name}-${pr}-${j}-${ab[0]}-${ab[1]}`,division:div,pool:p.name,kind:'Pool',a:ab[0],b:ab[1],poolRound:pr})))
+  }));return out;
+}
+function scheduleGames(games){
+  let uns=games.slice(),wave=1,out=[],lastWave={};
+  while(uns.length){
+    let used=new Set(),court=1,placed=[];
+    for(let i=0;i<uns.length && court<=state.courts;i++){
+      let g=uns[i];if(used.has(g.a)||used.has(g.b))continue;
+      if((lastWave[g.a]===wave-1||lastWave[g.b]===wave-1) && uns.length>state.courts)continue;
+      g.wave=wave;g.court=court;g.actualCourt=court;g.status='queue';out.push(g);placed.push(g);used.add(g.a);used.add(g.b);lastWave[g.a]=lastWave[g.b]=wave;court++;
+    }
+    if(!placed.length){let g=uns[0];g.wave=wave;g.court=1;g.actualCourt=1;g.status='queue';out.push(g);placed=[g];lastWave[g.a]=lastWave[g.b]=wave}
+    let ids=new Set(placed.map(x=>x.id));uns=uns.filter(x=>!ids.has(x.id));wave++;
+  }return out;
+}
+function rebuildStructure(){
+  if(state.structureLocked){alert('Unlock Tournament Structure first.');return}
+  if(state.schedule.length||state.structureVersion>0){
+    let typed=prompt('DANGER: This can change pools, head-to-head matchups, match order, courts, and make printed scorecards stale. Type REBUILD to continue.');
+    if(typed!=='REBUILD')return;
+  }
+  state.pools={Beginner:makePools('Beginner'),Intermediate:makePools('Intermediate')};
+  state.schedule=scheduleGames(buildGames());state.scores={};state.playoffs={Beginner:null,Intermediate:null};state.structureVersion=(state.structureVersion||0)+1;state.dirty=false;state.dirtyMessage='';saveLib();renderAll();alert(`Tournament structure rebuilt. Current Structure Version: ${state.structureVersion}`);
+}
+function toggleLock(){
+  if(state.structureLocked){
+    let typed=prompt('Unlocking allows pool, matchup, and schedule changes. Type UNLOCK to continue.');
+    if(typed!=='UNLOCK')return;state.structureLocked=false;
+  }else state.structureLocked=true;
+  saveLib();renderAll()
+}
+
+function renderSetup(){
+  $('sumTeams').textContent=state.teams.length;$('sumB').textContent=teamsByDiv('Beginner').length;$('sumI').textContent=teamsByDiv('Intermediate').length;$('sumCourts').textContent=state.courts;$('sumVersion').textContent='v'+(state.structureVersion||0);
+  $('tName').value=state.name;$('tDate').value=state.date||'';$('tCourts').value=state.courts;$('tStatus').value=state.status;$('playoffFormat').value=state.playoffFormat||'single8';
+  $('lockBtn').textContent=state.structureLocked?'Unlock Structure':'Lock Tournament Structure';$('lockBtn').className=state.structureLocked?'warn':'';
+  $('lockBanner').className=state.status==='Live'?'status-live':'status-locked';
+  $('lockBanner').innerHTML=`<b>${state.structureLocked?'STRUCTURE LOCKED':'STRUCTURE UNLOCKED'}</b> · Version ${state.structureVersion||0} · ${esc(state.status)}${state.status==='Live'?' — live mode protects the draw while scores and court statuses continue normally.':''}`;
+  $('dirtyMsg').classList.toggle('hidden',!state.dirty);$('dirtyMsg').innerHTML=state.dirty?`<b>Structure attention:</b> ${esc(state.dirtyMessage||'Roster changes are not reflected in the current draw.')}`:'';
+  $('printVersion').textContent='v'+(state.structureVersion||0);
+}
+function renderTeams(){
+  $('teamEditor').innerHTML=`<div class="teamedit meta"><b>#</b><b>Team Name</b><b>Player 1</b><b>Player 2</b><b>Division</b><b></b></div>`+
+  state.teams.map(t=>{let pp=String(t.players||'').split(/\s+\+\s+/);return `<div class="teamedit" data-id="${t.id}"><input data-f="team_no" type="number" value="${esc(t.team_no)}"><input data-f="name" value="${esc(t.name)}"><input data-f="p1" value="${esc(pp[0]||'')}"><input data-f="p2" value="${esc(pp.slice(1).join(' + ')||'')}"><select data-f="division"><option ${t.division==='Beginner'?'selected':''}>Beginner</option><option ${t.division==='Intermediate'?'selected':''}>Intermediate</option></select><button data-del="${t.id}" class="danger">Delete</button></div>`}).join('');
+  $('teamEditor').querySelectorAll('[data-f]').forEach(el=>el.addEventListener('change',e=>{
+    let t=teamById(e.target.closest('[data-id]').dataset.id),f=e.target.dataset.f;
+    if(f==='division'&&e.target.value!==t.division&&!structuralAllowed()){renderTeams();return}
+    if(f==='team_no')t.team_no=Number(e.target.value)||0;
+    else if(f==='name')t.name=e.target.value.trim();
+    else if(f==='division'){t.division=e.target.value;markDirty('A team changed divisions. Current pools/schedule remain unchanged until you intentionally rebuild.')}
+    else {let row=e.target.closest('[data-id]'),p1=row.querySelector('[data-f="p1"]').value.trim(),p2=row.querySelector('[data-f="p2"]').value.trim();t.players=[p1,p2].filter(Boolean).join(' + ')}
+    saveLib();renderSetup()
+  }));
+  $('teamEditor').querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{if(!structuralAllowed())return;let t=teamById(b.dataset.del);if(confirm(`Delete ${t.name}? This marks the structure dirty but does NOT automatically rebuild it.`)){state.teams=state.teams.filter(x=>x.id!==t.id);markDirty(`${t.name} was removed. Existing pools/schedule are preserved until you rebuild.`);renderTeams()}});
+}
+function renderPools(){
+  function side(div,target){
+    let ps=state.pools[div]||[];$(target).innerHTML=ps.length?ps.map(p=>`<div class="poolcard"><div class="row" style="justify-content:space-between"><b>Pool ${p.name}</b><span class="meta">${p.teams.length} teams</span></div>${p.teams.map(id=>{let t=teamById(id);if(!t)return'';return `<div class="teamline"><b>${esc(t.name)}</b><div class="meta">${esc(t.players)}</div><label><span>Move to pool</span><select data-move="${id}" data-div="${div}" ${state.structureLocked?'disabled':''}>${ps.map(q=>`<option value="${q.name}" ${q.name===p.name?'selected':''}>Pool ${q.name}</option>`).join('')}</select></label></div>`}).join('')}</div>`).join(''):'<div class="alert">No pools yet. Build the tournament structure from Setup.</div>';
+    $(target).querySelectorAll('[data-move]').forEach(s=>s.onchange=e=>{if(!structuralAllowed()){renderPools();return}let id=e.target.dataset.move,to=e.target.value;ps.forEach(p=>p.teams=p.teams.filter(x=>x!==id));ps.find(p=>p.name===to).teams.push(id);state.schedule=[];state.scores={};state.playoffs[div]=null;state.structureVersion=(state.structureVersion||0)+1;state.dirty=true;state.dirtyMessage='Pools were manually changed. Rebuild is required to generate matching head-to-head pairings and court order.';saveLib();renderAll()})
+  }
+  side('Beginner','bPools');side('Intermediate','iPools')
+}
+function scoreFor(g){return state.scores[g.id]||{a:'',b:''}}
+function setScore(id,side,val){state.scores[id]=state.scores[id]||{a:'',b:''};state.scores[id][side]=val;let g=state.schedule.find(x=>x.id===id),s=state.scores[id];if(s.a!==''&&s.b!==''&&Number(s.a)!==Number(s.b))g.status='done';saveLib();renderAll()}
+function renderSchedule(){
+  ensureGameState();let rounds=[...new Set(state.schedule.map(g=>g.wave))].sort((a,b)=>a-b),rf=$('roundFilter').value||'all',q=$('search').value.trim().toLowerCase();
+  $('roundFilter').innerHTML='<option value="all">All rounds</option>'+rounds.map(r=>`<option value="${r}" ${String(r)===String(rf)?'selected':''}>Round ${r}</option>`).join('');
+  let html='';rounds.forEach(w=>{if(rf!=='all'&&Number(rf)!==w)return;let gs=state.schedule.filter(g=>g.wave===w);html+=`<div class="schedule-round"><h3>Round ${w}</h3><div class="courts">`;gs.forEach(g=>{let a=teamById(g.a),b=teamById(g.b);if(!a||!b)return;let text=(a.name+' '+a.players+' '+b.name+' '+b.players).toLowerCase();if(q&&!text.includes(q))return;let s=scoreFor(g),st=g.status||'queue';html+=`<div class="match ${st}"><div class="match-head"><span>Assigned Court ${g.court}${g.actualCourt&&g.actualCourt!==g.court?` · Live Court ${g.actualCourt}`:''}</span><span>${g.division} · Pool ${g.pool}</span></div><div class="team">${esc(a.name)}</div><div class="meta">${esc(a.players)}</div><div class="team">${esc(b.name)}</div><div class="meta">${esc(b.players)}</div><div class="scoreline"><input data-score="${g.id}:a" type="number" min="0" max="99" value="${esc(s.a)}"><b>–</b><input data-score="${g.id}:b" type="number" min="0" max="99" value="${esc(s.b)}"></div><div class="meta" style="margin-top:5px"><b>${st==='playing'?'IN PROGRESS':st==='done'?'COMPLETED':'IN QUEUE'}</b></div></div>`});html+='</div></div>'});$('scheduleArea').innerHTML=html||'<div class="alert">No matches found.</div>';
+  $('scheduleArea').querySelectorAll('[data-score]').forEach(el=>el.onchange=e=>{let [id,side]=e.target.dataset.score.split(':');setScore(id,side,e.target.value)})
+}
+function activePlayingTeams(){let s=new Set();state.schedule.filter(g=>g.status==='playing').forEach(g=>{s.add(g.a);s.add(g.b)});return s}
+function freeCourts(){let busy=new Set(state.schedule.filter(g=>g.status==='playing').map(g=>g.actualCourt));return Array.from({length:state.courts},(_,i)=>i+1).filter(c=>!busy.has(c))}
+function eligibleQueue(){
+  let busy=activePlayingTeams();return state.schedule.filter(g=>g.status==='queue'&&!busy.has(g.a)&&!busy.has(g.b)).sort((a,b)=>a.wave-b.wave||a.court-b.court)
+}
+function startMatch(id,requestedCourt){
+  let g=state.schedule.find(x=>x.id===id);if(!g||g.status!=='queue')return;
+  let free=freeCourts();if(!free.length){alert('No open courts. Complete or return a match to the queue first.');return}
+  let court=requestedCourt&&free.includes(Number(requestedCourt))?Number(requestedCourt):free.includes(g.court)?g.court:free[0];
+  g.actualCourt=court;g.status='playing';saveLib();renderAll()
+}
+function returnQueue(id){let g=state.schedule.find(x=>x.id===id);if(!g)return;g.status='queue';g.actualCourt=g.court;saveLib();renderAll()}
+function completeMatch(id){
+  let g=state.schedule.find(x=>x.id===id),s=scoreFor(g);if(s.a===''||s.b===''||Number(s.a)===Number(s.b)){alert('Enter a final non-tied score first.');return}g.status='done';saveLib();renderAll()
+}
+function liveCard(g){
+  let a=teamById(g.a),b=teamById(g.b),s=scoreFor(g);if(!a||!b)return'';
+  if(g.status==='queue'){let free=freeCourts();return `<div class="match"><div class="match-head"><span>Round ${g.wave} · ${g.division} Pool ${g.pool}</span><span>Originally Court ${g.court}</span></div><div class="team">${esc(a.name)}</div><div class="meta">vs</div><div class="team">${esc(b.name)}</div><div class="row" style="margin-top:8px"><select data-court-select="${g.id}" style="max-width:130px">${free.map(c=>`<option value="${c}" ${c===g.court?'selected':''}>Court ${c}</option>`).join('')}</select><button data-start="${g.id}" class="primary" ${free.length?'':'disabled'}>Send to Court</button></div></div>`}
+  if(g.status==='playing')return `<div class="match playing"><div class="match-head"><span>Round ${g.wave} · ${g.division} Pool ${g.pool}</span><b>Court ${g.actualCourt}</b></div><div class="team">${esc(a.name)}</div><div class="team">${esc(b.name)}</div><div class="scoreline"><input data-live-score="${g.id}:a" type="number" min="0" value="${esc(s.a)}"><b>–</b><input data-live-score="${g.id}:b" type="number" min="0" value="${esc(s.b)}"></div><div class="row" style="margin-top:8px"><button data-complete="${g.id}" class="primary">Complete Match</button><button data-return="${g.id}">Back to Queue</button></div></div>`;
+  return `<div class="match done"><div class="match-head"><span>Round ${g.wave} · Court ${g.actualCourt||g.court}</span><span>${g.division}</span></div><div class="row" style="justify-content:space-between"><b>${esc(a.name)}</b><b>${esc(s.a)}</b></div><div class="row" style="justify-content:space-between"><b>${esc(b.name)}</b><b>${esc(s.b)}</b></div></div>`
+}
+function renderLive(){
+  ensureGameState();let q=eligibleQueue(),p=state.schedule.filter(g=>g.status==='playing').sort((a,b)=>a.actualCourt-b.actualCourt),d=state.schedule.filter(g=>g.status==='done').slice(-10).reverse();
+  $('qCount').textContent=`(${q.length} eligible)`;$('pCount').textContent=`(${p.length} active)`;$('dCount').textContent=`(${d.length} shown)`;
+  $('queueList').innerHTML=q.slice(0,12).map(liveCard).join('')||'<div class="card meta">No eligible matches waiting.</div>';$('playingList').innerHTML=p.map(liveCard).join('')||'<div class="card meta">No matches currently playing.</div>';$('doneList').innerHTML=d.map(liveCard).join('')||'<div class="card meta">No completed matches yet.</div>';
+  let busy=new Map(p.map(g=>[g.actualCourt,g]));$('courtGrid').innerHTML=Array.from({length:state.courts},(_,i)=>{let c=i+1,g=busy.get(c);return `<div class="court ${g?'busy':''}"><b>Court ${c}</b>${g?`<div class="meta">${esc(teamById(g.a)?.name||'')}<br>vs<br>${esc(teamById(g.b)?.name||'')}</div>`:'<div class="meta">OPEN</div>'}</div>`}).join('');
+  document.querySelectorAll('[data-start]').forEach(b=>b.onclick=()=>{let sel=document.querySelector(`[data-court-select="${b.dataset.start}"]`);startMatch(b.dataset.start,sel?.value)});
+  document.querySelectorAll('[data-complete]').forEach(b=>b.onclick=()=>completeMatch(b.dataset.complete));
+  document.querySelectorAll('[data-return]').forEach(b=>b.onclick=()=>returnQueue(b.dataset.return));
+  document.querySelectorAll('[data-live-score]').forEach(el=>el.onchange=e=>{let [id,side]=e.target.dataset.liveScore.split(':');state.scores[id]=state.scores[id]||{a:'',b:''};state.scores[id][side]=e.target.value;saveLib();renderStandings()})
+}
+function stats(div){
+  let m={};teamsByDiv(div).forEach(t=>m[t.id]={id:t.id,name:t.name,pool:poolName(div,t.id),gp:0,w:0,l:0,pf:0,pa:0,pd:0});
+  state.schedule.filter(g=>g.division===div).forEach(g=>{let s=state.scores[g.id];if(!s||s.a===''||s.b==='')return;let A=Number(s.a),B=Number(s.b);if(!Number.isFinite(A)||!Number.isFinite(B)||A===B||!m[g.a]||!m[g.b])return;m[g.a].gp++;m[g.b].gp++;m[g.a].pf+=A;m[g.a].pa+=B;m[g.b].pf+=B;m[g.b].pa+=A;if(A>B){m[g.a].w++;m[g.b].l++}else{m[g.b].w++;m[g.a].l++}});
+  Object.values(m).forEach(x=>x.pd=x.pf-x.pa);return m
+}
+const cmp=(a,b)=>b.w-a.w||b.pd-a.pd||b.pf-a.pf||a.name.localeCompare(b.name);
+function poolRanks(div,pool){return Object.values(stats(div)).filter(x=>x.pool===pool).sort(cmp)}
+function standingsHtml(div){let html='';(state.pools[div]||[]).forEach(p=>{html+=`<div class="card" style="margin-bottom:9px"><h3>Pool ${p.name}</h3><div class="tablewrap"><table><thead><tr><th>Team</th><th>GP</th><th>W</th><th>L</th><th>PF</th><th>PA</th><th>+/-</th></tr></thead><tbody>`;poolRanks(div,p.name).forEach(x=>html+=`<tr><td><b>${esc(x.name)}</b></td><td>${x.gp}</td><td>${x.w}</td><td>${x.l}</td><td>${x.pf}</td><td>${x.pa}</td><td>${x.pd}</td></tr>`);html+='</tbody></table></div></div>'});return html||'<div class="alert">No standings yet.</div>'}
+function renderStandings(){$('bStand').innerHTML=standingsHtml('Beginner');$('iStand').innerHTML=standingsHtml('Intermediate')}
+function qualifiers(div,n){let all=[];(state.pools[div]||[]).forEach(p=>all.push(...poolRanks(div,p.name).slice(0,2)));let seen=new Set(),u=[];all.sort(cmp).forEach(x=>{if(!seen.has(x.id)&&u.length<n){seen.add(x.id);u.push(x)}});if(u.length<n)Object.values(stats(div)).filter(x=>!seen.has(x.id)).sort(cmp).forEach(x=>{if(u.length<n){seen.add(x.id);u.push(x)}});return u}
+function seedDiv(div,n){
+  let q=qualifiers(div,n);while(q.length<n)q.push({name:'BYE'});if(n===4)return{size:4,qf:[],sf:[{id:div[0]+'S1',a:q[0].name,b:q[3].name,sa:'',sb:''},{id:div[0]+'S2',a:q[1].name,b:q[2].name,sa:'',sb:''}],f:[{id:div[0]+'F',a:'Winner SF1',b:'Winner SF2',sa:'',sb:''}]};
+  let pairs=[[0,7],[3,4],[1,6],[2,5]];return{size:8,qf:pairs.map((z,i)=>({id:div[0]+'Q'+(i+1),a:q[z[0]].name,b:q[z[1]].name,sa:'',sb:''})),sf:[{id:div[0]+'S1',a:'Winner QF1',b:'Winner QF2',sa:'',sb:''},{id:div[0]+'S2',a:'Winner QF3',b:'Winner QF4',sa:'',sb:''}],f:[{id:div[0]+'F',a:'Winner SF1',b:'Winner SF2',sa:'',sb:''}]}
+}
+function winner(m){if(!m)return null;if(m.a==='BYE')return m.b;if(m.b==='BYE')return m.a;if(m.sa===''||m.sb===''||Number(m.sa)===Number(m.sb))return null;return Number(m.sa)>Number(m.sb)?m.a:m.b}
+function syncBracket(div){let b=state.playoffs[div];if(!b)return;if(b.size===8){let w=b.qf.map(winner);b.sf[0].a=w[0]||'Winner QF1';b.sf[0].b=w[1]||'Winner QF2';b.sf[1].a=w[2]||'Winner QF3';b.sf[1].b=w[3]||'Winner QF4'}let s=b.sf.map(winner);b.f[0].a=s[0]||'Winner SF1';b.f[0].b=s[1]||'Winner SF2'}
+function bracketSlot(m,label){return `<div class="slot"><div class="meta">${label}</div><div class="team">${esc(m.a)}</div><div class="scoreline"><input data-ps="${m.id}:a" type="number" min="0" value="${esc(m.sa)}"></div><div class="team">${esc(m.b)}</div><div class="scoreline"><input data-ps="${m.id}:b" type="number" min="0" value="${esc(m.sb)}"></div></div>`}
+function renderBracket(div,target){
+  syncBracket(div);let b=state.playoffs[div];if(!b){$(target).innerHTML='<div class="alert">No playoff bracket created yet.</div>';return}
+  let html='<div class="bracket">';if(b.qf?.length)html+=`<div><h3>Quarterfinals</h3>${b.qf.map((m,i)=>bracketSlot(m,'QF '+(i+1))).join('')}</div>`;html+=`<div><h3>Semifinals</h3>${b.sf.map((m,i)=>bracketSlot(m,'SF '+(i+1))).join('')}</div><div><h3>Final</h3>${bracketSlot(b.f[0],'Championship')}${winner(b.f[0])?`<div class="alert ok"><b>Champion:</b> ${esc(winner(b.f[0]))}</div>`:''}</div></div>`;$(target).innerHTML=html;
+  $(target).querySelectorAll('[data-ps]').forEach(el=>el.onchange=e=>{let [id,side]=e.target.dataset.ps.split(':');let m=[...(b.qf||[]),...b.sf,...b.f].find(x=>x.id===id);m['s'+side]=e.target.value;saveLib();renderBracket(div,target)})
+}
+function renderAll(){if(!state)return;ensureGameState();renderSetup();renderTeams();renderPools();renderSchedule();renderLive();renderStandings();renderBracket('Beginner','bBracket');renderBracket('Intermediate','iBracket');$('headSub').textContent=state.name+' • '+state.status}
+function openTab(name){document.querySelectorAll('[data-tab]').forEach(x=>x.classList.toggle('active',x.dataset.tab===name));document.querySelectorAll('.tabpage').forEach(x=>x.classList.add('hidden'));$(name).classList.remove('hidden');if(name==='live')renderLive();if(name==='schedule')renderSchedule()}
+document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>openTab(b.dataset.tab));
+
+$('homeBtn').onclick=goHome;
+$('newTournament').onclick=()=>{let t=blankTournament();library.push(t);saveLib();openTournament(t.id)};
+$('saveSetup').onclick=()=>{state.name=$('tName').value.trim()||'Untitled Tournament';state.date=$('tDate').value;let newCourts=Math.max(1,Math.min(50,Number($('tCourts').value)||1));if(newCourts!==state.courts&&state.schedule.length){if(!structuralAllowed()){renderSetup();return}state.courts=newCourts;markDirty('Court count changed. Existing schedule is preserved until you rebuild.')}else state.courts=newCourts;state.playoffFormat=$('playoffFormat').value;let newStatus=$('tStatus').value;state.status=newStatus;if(newStatus==='Live')state.structureLocked=true;saveLib();renderAll()};
+$('lockBtn').onclick=toggleLock;$('rebuildBtn').onclick=rebuildStructure;
+$('addTeam').onclick=()=>{if(!structuralAllowed())return;let id='n'+(state.nextId++);state.teams.push({id,team_no:state.teams.length+1,name:'New Team',players:'Player 1 + Player 2',division:'Beginner'});markDirty('A team was added. Existing pools/schedule are preserved until you rebuild.');renderTeams()};
+$('search').oninput=renderSchedule;$('roundFilter').onchange=renderSchedule;
+$('autoNext').onclick=()=>{let g=eligibleQueue()[0];if(!g){alert('No eligible queued match is available right now.');return}startMatch(g.id)};
+$('seedPlayoffs').onclick=()=>{let f=state.playoffFormat||'none';if(f==='none'){alert('Choose a playoff format in Setup first.');return}let n=f==='single4'?4:8;state.playoffs={Beginner:seedDiv('Beginner',n),Intermediate:seedDiv('Intermediate',n)};saveLib();renderAll()};
+$('printBtn').onclick=()=>window.print();
+
+function download(name,content,type){let blob=new Blob([content],{type});let a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},250)}
+$('exportJson').onclick=()=>download((state.name||'Tournament').replace(/[^\w-]+/g,'_')+'_Bert_Backup.json',JSON.stringify(state,null,2),'application/json');
+$('exportScheduleCsv').onclick=()=>{let rows=[['Round','Court','Division','Pool','Team A','Team B','Status','Score A','Score B']];state.schedule.forEach(g=>{let s=scoreFor(g);rows.push([g.wave,g.actualCourt||g.court,g.division,g.pool,teamById(g.a)?.name||'',teamById(g.b)?.name||'',g.status,s.a,s.b])});download('Bert_Schedule_v'+state.structureVersion+'.csv',rows.map(r=>r.map(x=>`"${String(x).replace(/"/g,'""')}"`).join(',')).join('\n'),'text/csv')};
+
+async function importJsonFile(file,replaceCurrent){
+  if(!file)return alert('Choose a JSON file first.');try{let obj=JSON.parse(await file.text());let t;
+    if(obj.teams&&obj.pools&&obj.schedule){t={...blankTournament(),...obj,id:replaceCurrent&&state?state.id:uid(),name:obj.name||file.name.replace(/\.json$/i,''),status:obj.status||'Draft',structureLocked:obj.structureLocked??false,structureVersion:obj.structureVersion||1,createdAt:Date.now(),updatedAt:Date.now()};ensureImported(t)}
+    else throw new Error('Not a recognized Bert tournament backup.');
+    if(replaceCurrent&&state){state=t;let i=library.findIndex(x=>x.id===state.id);library[i]=state;saveLib();renderAll()}else{library.push(t);saveLib();renderLibrary();alert('Tournament imported into My Tournaments.')}
+  }catch(e){alert('Import failed: '+e.message)}
+}
+function ensureImported(t){t.schedule=(t.schedule||[]).map(g=>({...g,status:g.status||'queue',actualCourt:g.actualCourt??g.court}));t.scores=t.scores||{};t.playoffs=t.playoffs||{Beginner:null,Intermediate:null};t.pools=t.pools||{Beginner:[],Intermediate:[]};t.teams=t.teams||[];t.courts=t.courts||Math.max(1,...t.schedule.map(g=>g.court||1));}
+$('libraryImportBtn').onclick=()=>importJsonFile($('libraryImportFile').files[0],false);
+$('importJsonBtn').onclick=()=>importJsonFile($('importJsonFile').files[0],true);
+
+async function importRosterFile(file){
+  if(!file)return alert('Choose a roster file first.');if(!structuralAllowed())return;
+  let rows=[];
+  try{
+    if(file.name.toLowerCase().endsWith('.csv')){let text=await file.text();let lines=text.split(/\r?\n/).filter(Boolean);let head=lines.shift().split(',').map(x=>x.trim().replace(/^"|"$/g,''));rows=lines.map(line=>{let vals=line.match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g)||[];vals=vals.map(x=>x.trim().replace(/^"|"$/g,'').replace(/""/g,'"'));let o={};head.forEach((h,i)=>o[h]=vals[i]||'');return o})}
+    else{if(typeof XLSX==='undefined')throw new Error('Excel parser did not load. Connect to the internet or save the sheet as CSV.');let buf=await file.arrayBuffer(),wb=XLSX.read(buf,{type:'array'}),ws=wb.Sheets[wb.SheetNames[0]];rows=XLSX.utils.sheet_to_json(ws,{defval:''})}
+    let norm=s=>String(s||'').trim();let imported=rows.map((r,i)=>{let team=norm(r['Team Name']??r['Team']??r['team name']);let p1=norm(r['Player 1']??r['Player1']??r['player 1']);let p2=norm(r['Player 2']??r['Player2']??r['player 2']);let div=norm(r['Division']??r['division'])||'Beginner';return{id:'n'+(state.nextId++),team_no:state.teams.length+i+1,name:team||`Team ${i+1}`,players:[p1,p2].filter(Boolean).join(' + '),division:/inter/i.test(div)?'Intermediate':'Beginner'}}).filter(x=>x.name);
+    if(!imported.length)throw new Error('No roster rows found. Expected Team Name, Player 1, Player 2, Division.');
+    if(state.teams.length&&!confirm(`Add ${imported.length} imported teams to the existing roster? Choose Cancel if you intended to start a blank tournament.`))return;
+    state.teams.push(...imported);markDirty(`${imported.length} teams were imported. Existing pools/schedule remain unchanged until you rebuild.`);renderTeams()
+  }catch(e){alert('Roster import failed: '+e.message)}
+}
+$('importRoster').onclick=()=>importRosterFile($('rosterFile').files[0]);
+
+renderLibrary();
+if(activeId&&library.some(t=>t.id===activeId))openTournament(activeId);
+</script>
+<script>
+if('serviceWorker' in navigator && location.protocol.startsWith('http')){navigator.serviceWorker.register('./sw.js').catch(()=>{});}
+</script>
+</body>
+</html>
