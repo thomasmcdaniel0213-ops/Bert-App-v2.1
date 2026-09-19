@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Bert v2 Test">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
@@ -58,6 +58,17 @@ label span{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}
 @media(max-width:1000px){.library{grid-template-columns:1fr 1fr}.summary{grid-template-columns:repeat(3,1fr)}.courts{grid-template-columns:repeat(2,1fr)}.live-layout{grid-template-columns:1fr}.court-grid{grid-template-columns:repeat(4,1fr)}.teamedit{grid-template-columns:45px 1fr 1fr 1fr 120px 68px}}
 @media(max-width:640px){header{position:static}.wrap{padding:10px}.library,.g2,.g3,.poolgrid{grid-template-columns:1fr}.summary{grid-template-columns:repeat(2,1fr)}.courts{grid-template-columns:1fr}.court-grid{grid-template-columns:repeat(2,1fr)}.teamedit{grid-template-columns:1fr}.tabs{overflow-x:auto;flex-wrap:nowrap;padding-bottom:4px}.tabs button{white-space:nowrap}.bracket{grid-template-columns:1fr}}
 @media print{header,.no-print{display:none!important}body{background:#fff}.wrap{max-width:none;padding:0}.card,.match,.poolcard{break-inside:avoid}}
+
+/* iOS Home Screen safe area */
+@supports (padding: max(0px)) {
+  body {
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+  header {
+    padding-top: calc(12px + env(safe-area-inset-top)) !important;
+  }
+}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </head>

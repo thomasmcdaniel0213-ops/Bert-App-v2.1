@@ -43,6 +43,17 @@ header .sub{color:#dff5ff}
 .pill{display:inline-block;background:var(--lime);color:#294800;border-radius:999px;padding:4px 8px;font-size:12px;font-weight:700}
 @media(max-width:900px){.matches{grid-template-columns:repeat(2,1fr)}.partrow,.teamrow{grid-template-columns:1fr}.choicegrid{grid-template-columns:1fr}.g2{grid-template-columns:1fr}}
 @media(max-width:620px){.wrap{padding:10px}.progress{grid-template-columns:repeat(2,1fr)}.matches{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}}
+
+/* iOS Home Screen safe area */
+@supports (padding: max(0px)) {
+  body {
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+  header {
+    padding-top: calc(12px + env(safe-area-inset-top)) !important;
+  }
+}
 </style>
 </head>
 <body>

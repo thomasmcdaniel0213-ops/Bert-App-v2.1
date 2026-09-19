@@ -1,4 +1,4 @@
-const CACHE='bert-v232-home-visual-cache-1';
+const CACHE='bert-v233-ios-safe-cache-1';
 const ASSETS=[
 './','./index.html','./tournament.html','./round-robin.html',
 './manifest.webmanifest','./bert-logo.png',
@@ -14,13 +14,11 @@ self.addEventListener('activate',e=>e.waitUntil(
 ));
 self.addEventListener('fetch',e=>{
   if(e.request.mode==='navigate'){
-    e.respondWith(
-      fetch(e.request).then(r=>{
-        const copy=r.clone();
-        caches.open(CACHE).then(c=>c.put(e.request,copy));
-        return r;
-      }).catch(()=>caches.match(e.request).then(x=>x||caches.match('./index.html')))
-    );
+    e.respondWith(fetch(e.request).then(r=>{
+      const copy=r.clone();
+      caches.open(CACHE).then(c=>c.put(e.request,copy));
+      return r;
+    }).catch(()=>caches.match(e.request).then(x=>x||caches.match('./index.html'))));
   } else {
     e.respondWith(caches.match(e.request).then(c=>c||fetch(e.request)));
   }
