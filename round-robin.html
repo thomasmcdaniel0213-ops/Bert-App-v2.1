@@ -49,7 +49,7 @@ header .sub{color:#dff5ff}
 <header><div class="top">
   <a href="index.html" title="Back to Bert Home" style="display:flex;align-items:center;gap:10px;color:inherit;text-decoration:none">
     <img src="bert-logo.png" alt="Bert Home" style="width:46px;height:46px;border-radius:11px">
-    <div><h1>Bert — Round Robin</h1><div class="sub">Tap Bert anytime to return Home</div></div>
+    <div><h1>Bert — Round Robin</h1><div class="sub">Round Robin</div></div>
   </a>
   <span id="status" class="pill">Ready</span>
 </div></header>
@@ -65,7 +65,10 @@ header .sub{color:#dff5ff}
 
   <div id="step1" class="card step">
     <h2>Step 1: Enter Event Name</h2>
-    <label><span>Event Name</span><input id="eventName" placeholder="Saturday Morning Pickup"></label>
+    <div class="row">
+      <label class="grow"><span>Event Name</span><input id="eventName" placeholder="Saturday Morning Pickup"></label>
+      <label style="min-width:170px"><span>Event Date</span><input id="eventDate" type="date"></label>
+    </div>
     <div class="actions"><span></span><button class="primary" data-next="2">Next</button></div>
   </div>
 
@@ -100,10 +103,10 @@ header .sub{color:#dff5ff}
 <section id="eventApp" class="hidden">
   <div class="row" style="justify-content:space-between;margin-bottom:10px">
     <div class="row">
-      <button id="editSetup" class="secondary">Edit Event Setup</button>
-      <button id="newEvent" class="secondary">New Event</button>
+      <button id="editSetup" class="secondary">Change Bert's Plan</button>
+      <button id="newEvent" class="secondary">New Adventure</button>
     </div>
-    <button id="clearEvent" class="danger">Clear Event Contents</button>
+    <button id="clearEvent" class="danger">Clear Event</button>
   </div>
   <div class="stats">
     <div class="stat"><div class="meta">Event</div><div id="sumName" class="big"></div></div>
@@ -132,12 +135,6 @@ header .sub{color:#dff5ff}
         </div>
         <div id="inviteMsg" class="alert hidden" style="margin-top:10px"></div>
       </div>
-      <div class="card">
-        <h3>Fairness Rules</h3>
-        <div class="meta">
-          Bert will balance: partner repeats, opponent repeats, sit-outs, side assignments,
-          court usage, and serve/receive assignments. Mixed Doubles will prioritize Male/Female teams when possible.
-        </div>
       </div>
     </div>
     <div id="entryArea" class="card" style="margin-top:10px"></div>
@@ -145,8 +142,8 @@ header .sub{color:#dff5ff}
   </section>
 
   <section id="schedule" class="tabpage hidden">
-    <div class="alert ok"><b>No coin toss needed:</b> Bert assigns Serve/Receive automatically and balances it across the session.</div>
-    <div class="alert" style="margin-top:8px"><b>Quick score entry:</b> enter the losing score from 0–9 and Bert will automatically fill the winner as 11. For 10–10 or games above 11, enter both scores manually.</div>
+    <div class="alert ok"><b>Bert has the whistle.</b> Serve/Receive, court rotation and sides are already assigned.</div>
+    
     <div id="scheduleArea" style="margin-top:10px"></div>
   </section>
 
@@ -162,15 +159,24 @@ header .sub{color:#dff5ff}
 </main>
 
 <script>
-let state={step:1,eventName:'',format:'',type:'',courts:2,rounds:6,gameTo:11,entries:[],schedule:[],scores:{},nextId:1};
+const RR_LIBRARY_KEY='bert_v22_rr_library';
+let state={id:'rr_'+Date.now().toString(36),step:1,eventName:'',date:'',format:'',type:'',courts:2,rounds:6,gameTo:11,entries:[],schedule:[],scores:{},nextId:1,createdAt:Date.now(),updatedAt:Date.now(),archived:false};
 
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const pairKey=(a,b)=>[a,b].sort().join('|');
-function save(){localStorage.setItem('bert_rr_wizard_test_v1',JSON.stringify(state));$('status').textContent='Saved';setTimeout(()=>$('status').textContent='Ready',500)}
+function loadLibrary(){try{return JSON.parse(localStorage.getItem(RR_LIBRARY_KEY)||'[]')}catch(e){return[]}}
+function save(){
+  state.updatedAt=Date.now();
+  localStorage.setItem('bert_rr_wizard_test_v1',JSON.stringify(state));
+  let lib=loadLibrary(),i=lib.findIndex(x=>x.id===state.id);
+  if(i>=0)lib[i]=state;else lib.push(state);
+  localStorage.setItem(RR_LIBRARY_KEY,JSON.stringify(lib));
+  $('status').textContent='Saved';setTimeout(()=>$('status').textContent='Ready',500)
+}
 function showStep(n){state.step=n;document.querySelectorAll('.step').forEach(x=>x.classList.add('hidden'));$('step'+n).classList.remove('hidden');document.querySelectorAll('[data-dot]').forEach(x=>x.classList.toggle('active',Number(x.dataset.dot)===n));renderTypeChoices();save()}
 document.querySelectorAll('[data-next]').forEach(b=>b.onclick=()=>{
-  if(state.step===1){state.eventName=$('eventName').value.trim();if(!state.eventName)return alert('Enter an event name first.')}
+  if(state.step===1){state.eventName=$('eventName').value.trim();state.date=$('eventDate').value;if(!state.eventName)return alert('Enter an event name first.')}
   if(state.step===2&&!state.format)return alert('Choose Doubles, Singles, or Mixed Doubles.');
   if(state.step===3&&!state.type)return alert('Choose a format type.');
   showStep(Number(b.dataset.next))
@@ -193,6 +199,7 @@ function renderTypeChoices(){
 function showWizardFromEvent(preserve=true){
   if(preserve){
     $('eventName').value=state.eventName||'';
+    $('eventDate').value=state.date||'';
     $('courts').value=state.courts||2;
     $('rounds').value=state.rounds||6;
     $('gameTo').value=state.gameTo||11;
@@ -204,7 +211,7 @@ function showWizardFromEvent(preserve=true){
   showStep(1);
 }
 function freshState(){
-  return {step:1,eventName:'',format:'',type:'',courts:2,rounds:6,gameTo:11,entries:[],schedule:[],scores:{},nextId:1};
+  return {id:'rr_'+Date.now().toString(36),step:1,eventName:'',date:'',format:'',type:'',courts:2,rounds:6,gameTo:11,entries:[],schedule:[],scores:{},nextId:1,createdAt:Date.now(),updatedAt:Date.now(),archived:false};
 }
 
 $('createEvent').onclick=()=>{
@@ -352,7 +359,7 @@ $('newEvent').onclick=()=>{
   if(hasData && !confirm('Start a new Round Robin event? The current event will be cleared from this device unless you save it elsewhere first.')) return;
   state=freshState();
   localStorage.removeItem('bert_rr_wizard_test_v1');
-  $('eventName').value='';
+  $('eventName').value='';$('eventDate').value='';
   $('courts').value=2;$('rounds').value=6;$('gameTo').value=11;
   document.querySelectorAll('[data-format]').forEach(b=>b.classList.remove('active'));
   renderTypeChoices();
@@ -366,7 +373,7 @@ $('clearEvent').onclick=()=>{
   if(!confirm('This cannot be undone from the local app. Clear the event now?')) return;
   state=freshState();
   localStorage.removeItem('bert_rr_wizard_test_v1');
-  $('eventName').value='';
+  $('eventName').value='';$('eventDate').value='';
   $('courts').value=2;$('rounds').value=6;$('gameTo').value=11;
   document.querySelectorAll('[data-format]').forEach(b=>b.classList.remove('active'));
   renderTypeChoices();
@@ -434,10 +441,18 @@ function renderAll(){
 }
 
 try{
-  let saved=JSON.parse(localStorage.getItem('bert_rr_wizard_test_v1')||'null');
+  let openId=localStorage.getItem('bert_v22_rr_open_id');
+  let saved=null;
+  if(openId){
+    let lib=loadLibrary();
+    saved=lib.find(x=>x.id===openId)||null;
+    localStorage.removeItem('bert_v22_rr_open_id');
+  }
+  if(!saved) saved=JSON.parse(localStorage.getItem('bert_rr_wizard_test_v1')||'null');
   if(saved&&saved.eventName){
     state=saved;
     $('eventName').value=state.eventName||'';
+    $('eventDate').value=state.date||'';
     $('courts').value=state.courts||2;
     $('rounds').value=state.rounds||6;
     $('gameTo').value=state.gameTo||11;

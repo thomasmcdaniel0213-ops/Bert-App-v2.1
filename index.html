@@ -4,15 +4,15 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0b3d66">
-<meta name="application-name" content="Bert v2.1">
+<meta name="application-name" content="Bert v2.2">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Bert v2.1">
+<meta name="apple-mobile-web-app-title" content="Bert v2.2">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
-<title>Bert v2.1</title>
+<title>Bert v2.2</title>
 <style>
 :root{
   --sky:#11a9e2;--navy:#0b3d66;--navy2:#082d4d;--lime:#ddff35;--cream:#fffaf0;
@@ -77,6 +77,20 @@ main{max-width:1180px;margin:auto;padding:18px}
   .feature{min-height:100px;padding:16px}
   .feature strong{font-size:20px}
 }
+
+.event-locker{display:none;position:fixed;inset:0;background:rgba(5,32,52,.72);z-index:100;padding:24px;overflow:auto}
+.event-locker.open{display:block}
+.locker-panel{max-width:1050px;margin:30px auto;background:#f7fbfd;border-radius:24px;padding:18px;box-shadow:0 24px 60px rgba(0,0,0,.25)}
+.locker-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.locker-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:14px}
+.locker-card{background:white;border:1px solid var(--line);border-radius:16px;padding:14px}
+.status-chip{display:inline-block;border-radius:999px;padding:4px 9px;font-size:11px;font-weight:800}
+.status-completed{background:#daf1df;color:#24552d}
+.status-progress{background:#fff1ad;color:#6c5400}
+.status-pending{background:#fde6e6;color:#7c2e2e}
+.status-archived{background:#e7edf1;color:#52606a}
+.locker-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}
+@media(max-width:720px){.locker-grid{grid-template-columns:1fr}.event-locker{padding:10px}.locker-panel{margin:10px auto}}
 </style>
 </head>
 <body>
@@ -86,7 +100,7 @@ main{max-width:1180px;margin:auto;padding:18px}
       <img src="bert-logo.png" alt="Bert logo">
       <div><h1>Bert</h1><div class="sub">Pickleball Event Manager</div></div>
     </div>
-    <span class="version">v2.1 Test</span>
+    <span class="version">v2.2 Test</span>
   </div>
 </header>
 
@@ -97,8 +111,8 @@ main{max-width:1180px;margin:auto;padding:18px}
     </div>
 
     <div class="menu">
-      <h2>What are we playing?</h2>
-      <div class="lead">Choose a format and Bert will take you into the right event builder.</div>
+      <h2>Bert wants to play!</h2>
+      <div class="lead">Pick your game and let Bert take you on the next pickleball adventure.</div>
 
       <div class="feature-grid">
         <button class="feature tournament" id="goTournament">
@@ -106,6 +120,15 @@ main{max-width:1180px;margin:auto;padding:18px}
             <strong>Tournament Builder</strong>
             <small>Pools, brackets, schedules, score entry, standings, Live Control & backups</small>
             <span class="badge">v2 BUILT</span>
+          </span>
+          <span class="arrow">›</span>
+        </button>
+
+        <button class="feature" id="goEventLibrary" style="background:linear-gradient(135deg,#fff7d6,#fff0a3);color:#503b00;border:1px solid #eed56d">
+          <span>
+            <strong>Bert's Event Locker</strong>
+            <small>Saved tournaments and Round Robins · status, dates, archive & delete</small>
+            <span class="badge">EVENT HISTORY</span>
           </span>
           <span class="arrow">›</span>
         </button>
@@ -131,14 +154,77 @@ main{max-width:1180px;margin:auto;padding:18px}
       </div>
 
       <div class="footer-note">
-        Bert keeps each module separate so tournament-bracket planning remains the core product while Round Robin, Ladder League, and MiLP can grow independently.
+        Bert plans it, schedules it, keeps score, watches the courts, and keeps the fun moving.
       </div>
     </div>
   </section>
 </main>
+<div id="eventLocker" class="event-locker">
+  <div class="locker-panel">
+    <div class="locker-head">
+      <div>
+        <h2 style="margin:0;color:var(--navy)">Bert's Event Locker</h2>
+        <div style="font-size:13px;color:var(--muted);margin-top:4px">Saved event history stays here — away from the live setup screens.</div>
+      </div>
+      <button id="closeLocker">Close</button>
+    </div>
+    <div id="lockerGrid" class="locker-grid"></div>
+  </div>
+</div>
+
 
 <script>
 document.getElementById('goTournament').addEventListener('click',()=>location.href='tournament.html');
+
+const RR_LIBRARY_KEY='bert_v22_rr_library';
+function deriveRRStatus(e){
+  if(e.archived) return 'Archived';
+  const played=(e.schedule||[]).filter(m=>{const s=(e.scores||{})[m.id];return s&&s.a!==''&&s.b!==''}).length;
+  const total=(e.schedule||[]).length;
+  if(total>0 && played===total) return 'Completed';
+  if(played>0 || total>0) return 'In Progress';
+  return 'Pending';
+}
+function statusClass(s){
+  return s==='Completed'?'status-completed':s==='In Progress'?'status-progress':s==='Archived'?'status-archived':'status-pending';
+}
+function loadRRLibrary(){
+  try{return JSON.parse(localStorage.getItem(RR_LIBRARY_KEY)||'[]')}catch(e){return[]}
+}
+function saveRRLibrary(lib){localStorage.setItem(RR_LIBRARY_KEY,JSON.stringify(lib))}
+function renderLocker(){
+  const grid=document.getElementById('lockerGrid');
+  let rr=loadRRLibrary();
+  if(!rr.length){
+    grid.innerHTML='<div class="locker-card"><b>No saved Round Robins yet.</b><div style="font-size:12px;color:var(--muted);margin-top:5px">Once you create a Round Robin, Bert will keep it here.</div></div>';
+    return;
+  }
+  rr.sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0));
+  grid.innerHTML=rr.map(e=>{
+    const st=deriveRRStatus(e);
+    const d=e.date||new Date(e.createdAt||Date.now()).toLocaleDateString();
+    const updated=new Date(e.updatedAt||e.createdAt||Date.now()).toLocaleString();
+    return `<div class="locker-card">
+      <div style="display:flex;justify-content:space-between;gap:8px;align-items:center">
+        <b>${e.eventName||'Untitled Round Robin'}</b>
+        <span class="status-chip ${statusClass(st)}">${st}</span>
+      </div>
+      <div style="font-size:12px;color:var(--muted);margin-top:6px">${d} · ${e.format||''} ${e.type||''}</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:3px">Last updated: ${updated}</div>
+      <div class="locker-actions">
+        <button data-openrr="${e.id}">Open</button>
+        <button data-archrr="${e.id}">${e.archived?'Unarchive':'Archive'}</button>
+        <button data-delrr="${e.id}" style="background:#fff1f1;border-color:#e4b5b5">Delete</button>
+      </div>
+    </div>`;
+  }).join('');
+  grid.querySelectorAll('[data-openrr]').forEach(b=>b.onclick=()=>{localStorage.setItem('bert_v22_rr_open_id',b.dataset.openrr);location.href='round-robin.html'});
+  grid.querySelectorAll('[data-archrr]').forEach(b=>b.onclick=()=>{let lib=loadRRLibrary(),x=lib.find(v=>v.id===b.dataset.archrr);if(x){x.archived=!x.archived;x.updatedAt=Date.now();saveRRLibrary(lib);renderLocker()}});
+  grid.querySelectorAll('[data-delrr]').forEach(b=>b.onclick=()=>{let lib=loadRRLibrary(),x=lib.find(v=>v.id===b.dataset.delrr);if(x&&confirm(`Delete "${x.eventName||'this Round Robin'}" from Bert's Event Locker?`)){lib=lib.filter(v=>v.id!==x.id);saveRRLibrary(lib);renderLocker()}});
+}
+document.getElementById('goEventLibrary').addEventListener('click',()=>{renderLocker();document.getElementById('eventLocker').classList.add('open')});
+document.getElementById('closeLocker').addEventListener('click',()=>document.getElementById('eventLocker').classList.remove('open'));
+
 document.getElementById('goRoundRobin').addEventListener('click',()=>location.href='round-robin.html');
 if('serviceWorker' in navigator && location.protocol.startsWith('http')){
   navigator.serviceWorker.register('./sw.js').catch(()=>{});
