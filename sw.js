@@ -1,4 +1,4 @@
-const CACHE='bert-v231-home-layout-cache-1';
+const CACHE='bert-v232-home-visual-cache-1';
 const ASSETS=[
 './','./index.html','./tournament.html','./round-robin.html',
 './manifest.webmanifest','./bert-logo.png',

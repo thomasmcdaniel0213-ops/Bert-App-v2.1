@@ -23,3 +23,8 @@ Persistence
 
 HOME LAYOUT UPDATE
 - Bert's Event Locker moved below the event-planning choices so Tournament Builder and Round Robin remain the primary focus.
+
+HOME VISUAL UPDATE
+- Event Locker restored to full feature-card size at the bottom with gold/yellow undertones.
+- Added full-width 'Bert Wants To Play!' statement banner across the page.
+- Main right-side heading changed to 'Choose your next adventure' so the banner carries the primary statement.

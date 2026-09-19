@@ -4,15 +4,15 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0b3d66">
-<meta name="application-name" content="Bert v2.3.1">
+<meta name="application-name" content="Bert v2.3.2">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Bert v2.3.1">
+<meta name="apple-mobile-web-app-title" content="Bert v2.3.2">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
-<title>Bert v2.3.1</title>
+<title>Bert v2.3.2</title>
 <style>
 :root{
   --sky:#11a9e2;--navy:#0b3d66;--navy2:#082d4d;--lime:#ddff35;--cream:#fffaf0;
@@ -71,6 +71,22 @@ main{max-width:1180px;margin:auto;padding:18px}
   .logo-wrap{min-height:340px}
   .menu h2{font-size:28px}
 }
+.bert-callout{
+  max-width:1180px;
+  margin:16px auto 0;
+  padding:0 18px;
+}
+.bert-callout-inner{
+  background:linear-gradient(90deg,var(--navy),var(--sky));
+  color:white;
+  border-radius:18px;
+  text-align:center;
+  font-size:clamp(28px,4vw,48px);
+  font-weight:900;
+  letter-spacing:.2px;
+  padding:16px 18px;
+  box-shadow:0 8px 24px rgba(11,61,102,.12);
+}
 @media(max-width:520px){
   main{padding:12px}
   .logo-wrap{min-height:300px;padding:10px;border-radius:20px}
@@ -100,9 +116,13 @@ main{max-width:1180px;margin:auto;padding:18px}
       <img src="bert-logo.png" alt="Bert logo">
       <div><h1>Bert</h1><div class="sub">Pickleball Event Manager</div></div>
     </div>
-    <span class="version">v2.3.1 Test</span>
+    <span class="version">v2.3.2 Test</span>
   </div>
 </header>
+
+<section class="bert-callout">
+  <div class="bert-callout-inner">Bert Wants To Play!</div>
+</section>
 
 <main>
   <section class="hero">
@@ -111,8 +131,8 @@ main{max-width:1180px;margin:auto;padding:18px}
     </div>
 
     <div class="menu">
-      <h2>Bert wants to play!</h2>
-      <div class="lead">Pick your game and let Bert take you on the next pickleball adventure.</div>
+      <h2>Choose your next adventure</h2>
+      <div class="lead">Pick a format and Bert will take it from there.</div>
 
       <div class="feature-grid">
         <button class="feature tournament" id="goTournament">
@@ -144,13 +164,14 @@ main{max-width:1180px;margin:auto;padding:18px}
         </button>
       </div>
 
-      <div style="margin-top:22px;padding-top:16px;border-top:1px solid var(--line)">
-        <button id="goEventLibrary" style="width:100%;border:1px solid var(--line);background:rgba(255,255,255,.75);border-radius:14px;padding:13px 15px;cursor:pointer;color:var(--navy);text-align:left;display:flex;justify-content:space-between;align-items:center;gap:12px">
+      <div style="margin-top:18px;padding-top:16px;border-top:1px solid var(--line)">
+        <button class="feature" id="goEventLibrary" style="width:100%;background:linear-gradient(135deg,#fff5bf,#f4cf63);color:#4c3900;border:1px solid #e2bd4f">
           <span>
-            <strong style="font-size:16px">Bert's Event Locker</strong>
-            <small style="display:block;color:var(--muted);margin-top:3px">Saved events, history and archives</small>
+            <strong>Bert's Event Locker</strong>
+            <small>Saved events, history, archives and completed adventures</small>
+            <span class="badge" style="background:#fff8db;color:#6b5000;border:1px solid #e4c55f">EVENT HISTORY</span>
           </span>
-          <span style="font-size:22px;font-weight:800">›</span>
+          <span class="arrow">›</span>
         </button>
       </div>
 
