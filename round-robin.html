@@ -46,7 +46,13 @@ header .sub{color:#dff5ff}
 </style>
 </head>
 <body>
-<header><div class="top"><div><h1>Bert — Round Robin Test</h1><div class="sub">Guided setup + player entry + fair scheduling</div></div><span id="status" class="pill">Ready</span></div></header>
+<header><div class="top">
+  <a href="index.html" title="Back to Bert Home" style="display:flex;align-items:center;gap:10px;color:inherit;text-decoration:none">
+    <img src="bert-logo.png" alt="Bert Home" style="width:46px;height:46px;border-radius:11px">
+    <div><h1>Bert — Round Robin</h1><div class="sub">Tap Bert anytime to return Home</div></div>
+  </a>
+  <span id="status" class="pill">Ready</span>
+</div></header>
 <main class="wrap">
 
 <section id="wizard">
@@ -92,6 +98,13 @@ header .sub{color:#dff5ff}
 </section>
 
 <section id="eventApp" class="hidden">
+  <div class="row" style="justify-content:space-between;margin-bottom:10px">
+    <div class="row">
+      <button id="editSetup" class="secondary">Edit Event Setup</button>
+      <button id="newEvent" class="secondary">New Event</button>
+    </div>
+    <button id="clearEvent" class="danger">Clear Event Contents</button>
+  </div>
   <div class="stats">
     <div class="stat"><div class="meta">Event</div><div id="sumName" class="big"></div></div>
     <div class="stat"><div class="meta">Format</div><div id="sumFormat" class="big"></div></div>
@@ -133,7 +146,7 @@ header .sub{color:#dff5ff}
 
   <section id="schedule" class="tabpage hidden">
     <div class="alert ok"><b>No coin toss needed:</b> Bert assigns Serve/Receive automatically and balances it across the session.</div>
-    <div class="alert" style="margin-top:8px"><b>Quick score entry:</b> enter the losing score from 1–9 and Bert will automatically fill the winner as 11. For 10–10 or games above 11, enter both scores manually.</div>
+    <div class="alert" style="margin-top:8px"><b>Quick score entry:</b> enter the losing score from 0–9 and Bert will automatically fill the winner as 11. For 10–10 or games above 11, enter both scores manually.</div>
     <div id="scheduleArea" style="margin-top:10px"></div>
   </section>
 
@@ -176,6 +189,24 @@ function renderTypeChoices(){
     <button class="choice ${state.type==='fixed'?'active':''}" data-type="fixed"><b>Fixed Partners</b><div class="meta">Teams remain together</div></button>`;
   document.querySelectorAll('[data-type]').forEach(b=>b.onclick=()=>{state.type=b.dataset.type;renderTypeChoices();save()})
 }
+
+function showWizardFromEvent(preserve=true){
+  if(preserve){
+    $('eventName').value=state.eventName||'';
+    $('courts').value=state.courts||2;
+    $('rounds').value=state.rounds||6;
+    $('gameTo').value=state.gameTo||11;
+    document.querySelectorAll('[data-format]').forEach(b=>b.classList.toggle('active',b.dataset.format===state.format));
+    renderTypeChoices();
+  }
+  $('eventApp').classList.add('hidden');
+  $('wizard').classList.remove('hidden');
+  showStep(1);
+}
+function freshState(){
+  return {step:1,eventName:'',format:'',type:'',courts:2,rounds:6,gameTo:11,entries:[],schedule:[],scores:{},nextId:1};
+}
+
 $('createEvent').onclick=()=>{
   state.courts=Math.max(1,Math.min(30,Number($('courts').value)||1));
   state.rounds=Math.max(1,Math.min(30,Number($('rounds').value)||1));
@@ -311,6 +342,39 @@ function generateRotating(){
   }
   return out;
 }
+
+$('editSetup').onclick=()=>{
+  showWizardFromEvent(true);
+};
+
+$('newEvent').onclick=()=>{
+  let hasData=state.eventName||state.entries.length||state.schedule.length;
+  if(hasData && !confirm('Start a new Round Robin event? The current event will be cleared from this device unless you save it elsewhere first.')) return;
+  state=freshState();
+  localStorage.removeItem('bert_rr_wizard_test_v1');
+  $('eventName').value='';
+  $('courts').value=2;$('rounds').value=6;$('gameTo').value=11;
+  document.querySelectorAll('[data-format]').forEach(b=>b.classList.remove('active'));
+  renderTypeChoices();
+  $('eventApp').classList.add('hidden');
+  $('wizard').classList.remove('hidden');
+  showStep(1);
+};
+
+$('clearEvent').onclick=()=>{
+  if(!confirm('Clear ALL Round Robin contents? This removes event setup, players, schedule, and scores from this device.')) return;
+  if(!confirm('This cannot be undone from the local app. Clear the event now?')) return;
+  state=freshState();
+  localStorage.removeItem('bert_rr_wizard_test_v1');
+  $('eventName').value='';
+  $('courts').value=2;$('rounds').value=6;$('gameTo').value=11;
+  document.querySelectorAll('[data-format]').forEach(b=>b.classList.remove('active'));
+  renderTypeChoices();
+  $('eventApp').classList.add('hidden');
+  $('wizard').classList.remove('hidden');
+  showStep(1);
+};
+
 $('generateSchedule').onclick=()=>{
   try{state.schedule=state.type==='singles'?generateSingles():state.type==='fixed'?generateFixed():generateRotating();state.scores={};save();renderAll();document.querySelector('[data-tab="schedule"]').click()}
   catch(e){alert(e.message)}
@@ -338,7 +402,7 @@ function renderSchedule(){
     state.scores[id][side]=raw;
     let val=Number(raw), other=side==='a'?'b':'a';
     let otherVal=Number(state.scores[id][other]);
-    if(Number.isInteger(val)&&val>=1&&val<=9){
+    if(Number.isInteger(val)&&val>=0&&val<=9){
       if(state.scores[id][other]==='' || !Number.isFinite(otherVal) || otherVal<=9){
         state.scores[id][other]='11';
       }
@@ -353,7 +417,17 @@ function standings(){
   });Object.values(map).forEach(x=>x.pd=x.pf-x.pa);return Object.values(map).sort((a,b)=>b.w-a.w||b.pd-a.pd||b.pf-a.pf||a.name.localeCompare(b.name))
 }
 function renderStandings(){
-  let rows=standings();$('standingsArea').innerHTML=`<table><thead><tr><th>#</th><th>${isFixed()?'Team':'Player'}</th><th>GP</th><th>W</th><th>L</th><th>PF</th><th>PA</th><th>+/-</th></tr></thead><tbody>${rows.map((x,i)=>`<tr><td>${i===0?'🥇':i===1?'🥈':i===2?'🥉':i+1}</td><td><b>${esc(x.name)}</b></td><td>${x.gp}</td><td>${x.w}</td><td>${x.l}</td><td>${x.pf}</td><td>${x.pa}</td><td>${x.pd}</td></tr>`).join('')}</tbody></table>`
+  let rows=standings();
+  let lastKey=null,lastRank=0;
+  let ranked=rows.map((x,i)=>{
+    let key=`${x.w}|${x.pd}|${x.pf}`;
+    let rank;
+    if(key===lastKey){rank=lastRank}
+    else{rank=i+1;lastRank=rank;lastKey=key}
+    return {...x,rank};
+  });
+  const rankMark=r=>r===1?'🥇':r===2?'🥈':r===3?'🥉':r;
+  $('standingsArea').innerHTML=`<table><thead><tr><th>#</th><th>${isFixed()?'Team':'Player'}</th><th>GP</th><th>W</th><th>L</th><th>PF</th><th>PA</th><th>+/-</th></tr></thead><tbody>${ranked.map((x,i)=>`<tr><td>${rankMark(x.rank)}</td><td><b>${esc(x.name)}</b>${i>0&&x.rank===ranked[i-1].rank?' <span class="meta">(Tied)</span>':''}</td><td>${x.gp}</td><td>${x.w}</td><td>${x.l}</td><td>${x.pf}</td><td>${x.pa}</td><td>${x.pd}</td></tr>`).join('')}</tbody></table>`;
 }
 function renderAll(){
   $('sumName').textContent=state.eventName;$('sumFormat').textContent=(state.format==='mixed'?'Mixed Doubles':state.format[0].toUpperCase()+state.format.slice(1))+' · '+(state.type==='rotating'?'Rotating':state.type==='fixed'?'Fixed':'Individual');$('sumCourts').textContent=state.courts;$('sumRounds').textContent=state.rounds;renderEntries();renderSchedule();renderStandings()
@@ -361,7 +435,16 @@ function renderAll(){
 
 try{
   let saved=JSON.parse(localStorage.getItem('bert_rr_wizard_test_v1')||'null');
-  if(saved&&saved.eventName){state=saved;$('wizard').classList.add('hidden');$('eventApp').classList.remove('hidden');renderAll()}
+  if(saved&&saved.eventName){
+    state=saved;
+    $('eventName').value=state.eventName||'';
+    $('courts').value=state.courts||2;
+    $('rounds').value=state.rounds||6;
+    $('gameTo').value=state.gameTo||11;
+    document.querySelectorAll('[data-format]').forEach(b=>b.classList.toggle('active',b.dataset.format===state.format));
+    renderTypeChoices();
+    showStep(1);
+  }
 }catch(e){}
 </script>
 </body>
